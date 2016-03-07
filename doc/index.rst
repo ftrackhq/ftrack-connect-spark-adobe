@@ -12,7 +12,6 @@ ftrack connect integration for Adobe Creative Cloud applications.
 
     installing
     using
-    api_reference/index
     release/index
     glossary
 

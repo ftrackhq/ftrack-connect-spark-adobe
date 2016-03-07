@@ -1,0 +1,35 @@
+{
+  "name": "ftrack-connect-adobe-spark",
+  "version": "0.2.3",
+  "description": "ftrack connect for Adobe Creative Cloud",
+  "main": "Gruntfile.js",
+  "directories": {
+    "doc": "doc"
+  },
+  "devDependencies": {
+    "copyfiles": "^0.2.1",
+    "grunt": "^0.4.5",
+    "grunt-cep": "git+https://bitbucket.org/ftrack/grunt-cep.git#0.3.0-ftrack.2",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-copy": "^0.8.2",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-watch": "^0.6.1"
+  },
+  "scripts": {
+    "clean": "rimraf dist/*",
+    "copy": "copyfiles -f ./source/index.html ./source/favicon.ico ./dist",
+    "dist": "npm run copy & webpack --env=dist",
+    "lint": "eslint ./source"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ssh://git@bitbucket.org/ftrack/ftrack-connect-adobe-spark.git"
+  },
+  "author": "ftrack",
+  "license": "Apache 2.0",
+  "private": true,
+
+  "//": "ftrack-connect-spark should be installed via `npm link ftrack-connect-spark` for now.",
+  "//": "\"dependencies\": { \"ftrack-connect-spark\": \"latest\" }",
+  "dependencies": {}
+}
