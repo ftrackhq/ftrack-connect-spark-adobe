@@ -24,6 +24,9 @@ pip-log.txt
 .coverage
 .tox
 
+# Build
+build/
+
 # Caches
 Thumbs.db
 
@@ -32,3 +35,6 @@ Thumbs.db
 .pydevproject
 .settings
 .idea/
+
+# NPM Packages
+node_modules
