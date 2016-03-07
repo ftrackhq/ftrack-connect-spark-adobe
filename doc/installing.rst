@@ -60,17 +60,17 @@ Setting up development environment
 ----------------------------------
 
 1. Checkout this repository
-2. Install dependencies available on NPM's Package Registry.::
+2. Install *ftrack-connect-spark*::
 
-    npm install
-
-3. Install *ftrack-connect-spark*::
-
-    # In `ftrack-connect-spark repository, create a link.
+    # In the `ftrack-connect-spark` repository, create a link.
     npm link
 
     # In this repository, add the linked package
     npm link ftrack-connect-spark
+
+3. Install dependencies available on NPM's Package Registry.::
+
+    npm install
 
 4. To build and install the extension in debug mode, run (replace family with
    CC2014 if you want to run CC2014):
