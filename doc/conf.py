@@ -39,14 +39,10 @@ copyright = u'2016, ftrack'
 
 # Version
 with open(
-    os.path.join(
-        os.path.dirname(__file__), '..', 'source',
-        'ftrack_connect_spark_adobe', '_version.py'
-    )
-) as _version_file:
-    _version = re.match(
-        r'.*__version__ = \'(.*?)\'', _version_file.read(), re.DOTALL
-    ).group(1)
+    os.path.join(os.path.dirname(__file__), '..', 'package.json')
+) as packageFile:
+    package = json.load(packageFile)
+    _version = package.get('version')
 
 version = _version
 release = _version
