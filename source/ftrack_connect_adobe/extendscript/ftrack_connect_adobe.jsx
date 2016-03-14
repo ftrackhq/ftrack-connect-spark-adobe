@@ -63,16 +63,42 @@ function saveDocumentAsFileIn(directory) {
     return saveAsFileIn(directory, new PhotoshopSaveOptions(), '.psd');
 }
 
+function getJpegExportOptions(options) {
+    options = options || {};
+    var exportOptions = new JPEGSaveOptions();
+    exportOptions.embedColorProfile = options.embedColorProfile || true;
+    exportOptions.formatOptions = options.formatOptions || FormatOptions.OPTIMIZEDBASELINE;
+    exportOptions.matte = options.matte || MatteType.NONE;
+    exportOptions.quality = options.quality || 12;
+    return exportOptions;
+}
+
 /** Save jpeg image in *directory* */
-function saveJpegAsFileIn(directory) {
-    return saveAsFileIn(directory, new JPEGSaveOptions(), '.jpg');
+function saveJpegAsFileIn(directory, options) {
+    var originalHistoryState = app.activeDocument.activeHistoryState;
+
+    // Resize image to max 4k x 4k.
+    resizeImageFit(4096, 4096);
+    var filePath = saveAsFileIn(directory, getJpegExportOptions(options), '.jpg');
+
+    // Restore state
+    app.activeDocument.activeHistoryState = originalHistoryState;
+
+    return filePath;
 }
 
 /** Resize image to be contained within *maxWidth* and *maxHeight*. */
 function resizeImageFit(maxWidth, maxHeight) {
-    var width = null,
-        height = null;
+    var originalRulerUnitsState = app.preferences.rulerUnits;
+    app.preferences.rulerUnits = Units.PIXELS;
 
+    // Do not scale up images, exit early if smaller resolution.
+    if (app.activeDocument.height <= maxHeight && app.activeDocument.width <= maxWidth) {
+        return;
+    }
+
+    var width = null;
+    var height = null;
     if (app.activeDocument.height > app.activeDocument.width) {
         height = UnitValue(maxHeight, 'px');
     } else {
@@ -82,33 +108,6 @@ function resizeImageFit(maxWidth, maxHeight) {
     app.activeDocument.resizeImage(
         width, height, null, ResampleMethod.BICUBICSHARPER
     );
-}
 
-/** Export active document as a JPEG in *filePath*. */
-function exportJpeg(filePath, options) {
-    options = options || {};
-    var exportOptionsSaveForWeb = new ExportOptionsSaveForWeb();
-    exportOptionsSaveForWeb.format = options.format || SaveDocumentType.JPEG;
-    exportOptionsSaveForWeb.includeProfile = options.includeProfile || false;
-    exportOptionsSaveForWeb.interlaced = options.interlaced || true;
-    exportOptionsSaveForWeb.optimized = options.optimized || true;
-    exportOptionsSaveForWeb.quality = options.quality || 70;
-
-    app.activeDocument.exportDocument(
-        filePath, ExportType.SAVEFORWEB, exportOptionsSaveForWeb
-    );
-}
-
-/** Save the active document as a thumbnail in *directory*. */
-function saveThumbnailIn(directory) {
-    var filePath = new File(directory + 'thumbnail.jpg');
-    var originalHistoryState = app.activeDocument.activeHistoryState;
-
-    resizeImageFit(300, 300);
-    exportJpeg(filePath);
-
-    // Restore state
-    app.activeDocument.activeHistoryState = originalHistoryState;
-
-    return filePath.fsName;
+   app.preferences.rulerUnits = originalRulerUnitsState;
 }
