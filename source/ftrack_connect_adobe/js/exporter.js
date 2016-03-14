@@ -1,5 +1,6 @@
 window.FT = window.FT || {};
 
+/** Exporter */
 FT.exporter = (function(){
     var path = require('path');
     var fs = require('fs');
@@ -7,6 +8,7 @@ FT.exporter = (function(){
     var logger = window.console;
     var csInterface = window.top.csInterface;
 
+    /** Verify export */
     function verifyExport(next) {
         // Verify active document
         csInterface.evalScript('hasActiveDocument()', function (result) {
@@ -56,6 +58,28 @@ FT.exporter = (function(){
         });
     }
 
+    /** Return function to process exported media and call *callback*. */
+    function onMediaExportedCallback(callback) {
+        return function (err, filePath) {
+            if (err) { return callback(err, null); }
+
+            try {
+                var fileParts = path.parse(filePath);
+                var fileSize = fs.statSync(filePath).size;
+                var result = {
+                    path: filePath,
+                    name: fileParts.name,
+                    extension: fileParts.ext,
+                    size: fileSize
+                };
+            } catch (error) {
+                err = error;
+            }
+            callback(err, [result]);
+        }
+    }
+
+    /** Export reviewable media and call callback with array of results. */
     function exportReviewableMedia(options, callback) {
         verifyExport(function (err, value) {
             if (err) { return callback(err, null); }
@@ -64,25 +88,9 @@ FT.exporter = (function(){
                 if (err) { return callback(err, null); }
 
                 // TODO: Resize image when exporting
-                saveJpeg(directoryPath, function (err, filePath) {
-                    if (err) { return callback(err, null); }
-
-                    try {
-                        var fileParts = path.parse(filePath);
-                        var fileSize = fs.statSync(filePath).size;
-                        var result = {
-                            path: filePath,
-                            name: fileParts.name,
-                            extension: fileParts.ext,
-                            size: fileSize
-                        };
-                    } catch (error) {
-                        err = error;
-                    }
-                    callback(err, [result]);
-                })
-            })
-        })
+                saveJpeg(directoryPath, onMediaExportedCallback(callback));
+            });
+        });
     }
 
     return {

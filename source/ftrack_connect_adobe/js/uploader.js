@@ -1,11 +1,17 @@
 window.FT = window.FT || {};
 
+/** Uploader */
 FT.uploader = (function(){
     var fs = require('fs');
     var http = require('http');
     var https = require('https');
     var url = require('url');
 
+    /** 
+     * Upload filePath to *uploadUrl* using *headers*.
+     *
+     * Call *callback* with error and response text.
+     */
     function uploadFile(filePath, uploadUrl, headers, callback) {
         var urlParts = url.parse(uploadUrl);
         var httpModule = urlParts.protocol === 'http:' ? http : https;
@@ -20,23 +26,22 @@ FT.uploader = (function(){
             path: urlParts.path,
             headers: headers
         }
+
+        var responseText = '';
         var req = httpModule.request(requestOptions, function (res) {
-            console.log('STATUS: ', res.statusCode);
-            console.log('HEADERS: ', JSON.stringify(res.headers));
             res.setEncoding('utf8');
 
             res.on('data', function (chunk) {
-              console.log('BODY: ', chunk);
+                responseText += chunk;
             });
 
             res.on('end', function () {
-              console.log('No more data in response.')
-              callback()
+                callback(null, responseText);
             })
-
         });
+
         req.on('error', function (error) {
-          console.log('problem with request:', error);
+            callback(error);
         });
 
         stream.pipe(req, function () {
