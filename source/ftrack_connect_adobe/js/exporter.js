@@ -14,7 +14,7 @@ FT.exporter = (function(){
         csInterface.evalScript('hasActiveDocument()', function (result) {
             if (result !== 'true') {
                 return next(new Error(
-                    'Unable to publish without an active document.'
+                    'Unable to export without an active document.'
                 ));
             } else {
                 next();
@@ -27,7 +27,7 @@ FT.exporter = (function(){
     function verifyReturnedValue(value, next) {
         if (value === 'EvalScript error.') {
             next(new Error(
-                'Failed to publish, received bad result from application.'
+                'Failed to export, received bad result from application.'
             ));
         } else {
             next(null, value);
