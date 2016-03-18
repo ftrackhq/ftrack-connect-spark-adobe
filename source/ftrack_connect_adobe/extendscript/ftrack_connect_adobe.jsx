@@ -58,6 +58,10 @@ function saveAsFileIn(directory, options, fileExtension) {
     return filePath.fsName;
 }
 
+function getDocumentName() {
+    return app.activeDocument && app.activeDocument.name || null;
+}
+
 /** Save document in *directory* */
 function saveDocumentAsFileIn(directory) {
     return saveAsFileIn(directory, new PhotoshopSaveOptions(), '.psd');
