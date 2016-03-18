@@ -5,6 +5,7 @@ FT.exporter = (function(){
     var path = require('path');
     var fs = require('fs');
     var tmp = require('tmp');
+    var async = require('async');
     var logger = window.console;
     var csInterface = window.top.csInterface;
 
@@ -93,35 +94,58 @@ FT.exporter = (function(){
     }
 
     /**
-     * Export media and call callback with array of formatted files.
+     * Export media and call callback with error and array of formatted files.
+     *
+     * Options:
+     *     delivery
+     *         include delivery media in export
+     *     review
+     *         include reviewable media in export
+     *  
      */
     function exportMedia(options, callback) {
-        verifyExport(function (err, value) {
-            if (err) { return callback(err, null); }
+        logger.info('Exporting media', options);
+        var steps = [];
+        var temporaryDirectory;
+        var exportedFiles = [];
 
-            getTemporaryDirectory(function (err, directoryPath) {
-                if (err) { return callback(err, null); }
-
-                saveJpeg(directoryPath, function (err, jpegPath) {
-                    if (err) { return callback(err, null); }
-
-                    if (options.delivery) {
-                        saveDocument(directoryPath, function (err, documentPath) {
-                            if (err) { return callback(err, null); }
-                            formatExportResponse([
-                                { path: documentPath, use: 'delivery' },
-                                { path: jpegPath, use: 'review' }
-                            ], callback);
-                        });
-
-                    } else {
-                        formatExportResponse([
-                            { path: jpegPath, use: 'review' }
-                        ], callback);
-                    }
-                });
-            });
+        steps.push(verifyExport);
+        steps.push(getTemporaryDirectory);
+        steps.push(function (temporaryDirectory, next) {
+            directoryPath = temporaryDirectory;
+            next(null, directoryPath);
         });
+
+        if (options.review) {
+            logger.debug('Including reviewable media');
+            steps.push(saveJpeg, verifyReturnedValue);
+            steps.push(function (filePath, next) {
+                exportedFiles.push({ path: filePath, use: 'review' });
+                next(null, directoryPath);
+            });
+        }
+
+        if (options.delivery) {
+            logger.debug('Including deliverable media');
+            steps.push(saveDocument, verifyReturnedValue);
+            steps.push(function (filePath, next) {
+                exportedFiles.push({ path: filePath, use: 'delivery' });
+                next(null, directoryPath);
+            });
+        }
+
+        async.waterfall(
+            steps, function (err, result) {
+                if (err) {
+                    logger.error('Export error', err);
+                    callback(err, result);
+                } else {
+                    logger.info('Export steps complete', result);
+                    logger.info('Exported files', exportedFiles);
+                    formatExportResponse(exportedFiles, callback);
+                }
+            }
+        );
     }
 
     /**
