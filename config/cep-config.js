@@ -6,6 +6,11 @@
 // Get project details from package.json
 var grunt = require('grunt');
 var project = grunt.file.readJSON('package.json');
+var dependencies = project.cepDependencies.map(
+    function (dependency) {
+        return 'node_modules/' + dependency;
+    }
+);
 
 var config =
 {
@@ -61,7 +66,8 @@ var config =
             extensions: [{ manifest: 'config/manifest.extension.xml' }],
             products: ['aftereffects', 'premiere', 'photoshop'],
             source: 'build/staging',
-            families: ['CC2014', 'CC2015']
+            families: ['CC2014', 'CC2015'],
+            dependencies: dependencies
         }
     ],
 
