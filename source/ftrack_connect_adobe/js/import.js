@@ -16,7 +16,7 @@ FT.import = (function(){
                     'Unable to open document at path: ' + path
                 ));
             } else {
-                next(result);
+                next(null, result);
             }
         });
     }
