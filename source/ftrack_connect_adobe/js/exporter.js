@@ -5,6 +5,7 @@ FT.exporter = (function(){
     var path = require('path');
     var fs = require('fs');
     var tmp = require('tmp');
+    var async = require('async');
     var logger = window.console;
     var csInterface = window.top.csInterface;
 
@@ -58,42 +59,116 @@ FT.exporter = (function(){
         });
     }
 
-    /** Return function to process exported media and call *callback*. */
-    function onMediaExportedCallback(callback) {
-        return function (err, filePath) {
-            if (err) { return callback(err, null); }
+    /** Save original document in *directoryPath* and call *next* with resulting path. */
+    function saveDocument(directoryPath, next) {
+        logger.log(
+            'Saving document in temporary directory', directoryPath
+        );
+        var extendScript = 'saveDocumentAsFileIn(\'' + directoryPath + '\')';
+        csInterface.evalScript(extendScript, function (filePath) {
+            verifyReturnedValue(filePath, next);
+        });
+    }
 
-            try {
-                var fileParts = path.parse(filePath);
-                var fileSize = fs.statSync(filePath).size;
-                var result = {
-                    path: filePath,
+    /** Return function to process exported media and call *callback*. */
+    function formatExportResponse(media, callback) {
+        var err = null;
+        var result = [];
+        try {
+            media.forEach(function (file) {
+                var fileParts = path.parse(file.path);
+                var fileSize = fs.statSync(file.path).size;
+                result.push({
+                    use: file.use,
+                    path: file.path,
                     name: fileParts.name,
                     extension: fileParts.ext,
                     size: fileSize
-                };
-            } catch (error) {
-                err = error;
-            }
-            callback(err, [result]);
+                });
+            })
+
+        } catch (error) {
+            err = error;
         }
+        callback(err, result);
     }
 
-    /** Export reviewable media and call callback with array of results. */
-    function exportReviewableMedia(options, callback) {
-        verifyExport(function (err, value) {
-            if (err) { return callback(err, null); }
+    /**
+     * Export media and call callback with error and array of formatted files.
+     *
+     * Options:
+     *     delivery
+     *         include delivery media in export
+     *     review
+     *         include reviewable media in export
+     *  
+     */
+    function exportMedia(options, callback) {
+        logger.info('Exporting media', options);
+        var steps = [];
+        var temporaryDirectory;
+        var exportedFiles = [];
 
-            getTemporaryDirectory(function (err, directoryPath) {
-                if (err) { return callback(err, null); }
+        steps.push(verifyExport);
+        steps.push(getTemporaryDirectory);
+        steps.push(function (temporaryDirectory, next) {
+            directoryPath = temporaryDirectory;
+            next(null, directoryPath);
+        });
 
-                // TODO: Resize image when exporting
-                saveJpeg(directoryPath, onMediaExportedCallback(callback));
+        if (options.review) {
+            logger.debug('Including reviewable media');
+            steps.push(saveJpeg, verifyReturnedValue);
+            steps.push(function (filePath, next) {
+                exportedFiles.push({ path: filePath, use: 'review' });
+                next(null, directoryPath);
             });
+        }
+
+        if (options.delivery) {
+            logger.debug('Including deliverable media');
+            steps.push(saveDocument, verifyReturnedValue);
+            steps.push(function (filePath, next) {
+                exportedFiles.push({ path: filePath, use: 'delivery' });
+                next(null, directoryPath);
+            });
+        }
+
+        async.waterfall(
+            steps, function (err, result) {
+                if (err) {
+                    logger.error('Export error', err);
+                    callback(err, result);
+                } else {
+                    logger.info('Export steps complete', result);
+                    logger.info('Exported files', exportedFiles);
+                    formatExportResponse(exportedFiles, callback);
+                }
+            }
+        );
+    }
+
+    /**
+     * Return document name
+     */
+    function getDocumentName(next) {
+        var extendScript = 'getDocumentName()';
+        csInterface.evalScript(extendScript, function (documentName) {
+            verifyReturnedValue(documentName, next);
+        });
+    }
+
+    /**
+     * Return publish options
+     */
+    function getPublishOptions(options, callback) {
+        getDocumentName(function (err, documentName) {
+            callback(err, {name: documentName})
         });
     }
 
     return {
-        exportReviewableMedia: exportReviewableMedia
+        getPublishOptions: getPublishOptions,
+        exportMedia: exportMedia
     };
 }());
