@@ -30,7 +30,7 @@ var config =
         type: 'Panel',
         name: 'ftrack [spark]',
         main_path: 'ftrack_connect_adobe/index.html',
-        script_path: 'ftrack_connect_adobe/extendscript/ftrack_connect_adobe.jsx',
+        script_path: 'ftrack_connect_adobe/index.jsx',
         size: {
             normal: {
                 width: 320,

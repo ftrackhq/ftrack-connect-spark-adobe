@@ -12,7 +12,7 @@ FT.exporter = (function(){
     /** Verify export */
     function verifyExport(next) {
         // Verify active document
-        csInterface.evalScript('hasActiveDocument()', function (result) {
+        csInterface.evalScript('FTX.export.hasActiveDocument()', function (result) {
             if (result !== 'true') {
                 return next(new Error(
                     'Unable to export without an active document.'
@@ -53,7 +53,7 @@ FT.exporter = (function(){
         logger.log(
             'Saving jpeg in temporary directory', directoryPath
         );
-        var extendScript = 'saveJpegAsFileIn(\'' + directoryPath + '\')';
+        var extendScript = 'FTX.export.saveJpegAsFileIn(\'' + directoryPath + '\')';
         csInterface.evalScript(extendScript, function (filePath) {
             verifyReturnedValue(filePath, next);
         });
@@ -64,7 +64,7 @@ FT.exporter = (function(){
         logger.log(
             'Saving document in temporary directory', directoryPath
         );
-        var extendScript = 'saveDocumentAsFileIn(\'' + directoryPath + '\')';
+        var extendScript = 'FTX.export.saveDocumentAsFileIn(\'' + directoryPath + '\')';
         csInterface.evalScript(extendScript, function (filePath) {
             verifyReturnedValue(filePath, next);
         });
@@ -149,10 +149,31 @@ FT.exporter = (function(){
     }
 
     /**
-     * Return document name
+     * Get Metadata for *keys*.
+     */
+    function getMetadata(keys, next) {
+        logger.info('Obtaining metadata', keys);
+        var encodedKeys = JSON.stringify(keys)
+        var extendScript = 'FTX.export.getDocumentMetadata(\'' + encodedKeys + '\')';
+        csInterface.evalScript(extendScript, function (encodedResult) {
+            logger.info('Obtained metadata', encodedResult);
+            var error = null;
+            var result = null;
+
+            try {
+                result = JSON.parse(encodedResult);
+            } catch (err) {
+                error = err;
+            }
+            next(error, result);
+        });
+    }
+
+    /**
+     * Return document metadata
      */
     function getDocumentName(next) {
-        var extendScript = 'getDocumentName()';
+        var extendScript = 'FTX.export.getDocumentName()';
         csInterface.evalScript(extendScript, function (documentName) {
             verifyReturnedValue(documentName, next);
         });
@@ -162,9 +183,36 @@ FT.exporter = (function(){
      * Return publish options
      */
     function getPublishOptions(options, callback) {
-        getDocumentName(function (err, documentName) {
-            callback(err, {name: documentName})
+        var steps = [];
+        var result = {};
+
+        steps.push(getDocumentName);
+        steps.push(function (documentName, next) {
+            logger.info('Document name', documentName);
+            result.name = documentName;
+            next(null, result);
         });
+
+        if (options.metadata) {
+            steps.push(function (result, next) {
+                getMetadata(options.metadata, next);
+            });
+            steps.push(function (metadataValues, next) {
+                result.metadata = metadataValues;
+                next(null, result);
+            })
+        }
+
+        async.waterfall(
+            steps, function (err, result) {
+                if (err) {
+                    logger.error('Publish options error', err);
+                } else {
+                    logger.info('Publish options complete', result);
+                }
+                callback(err, result);
+            }
+        );
     }
 
     return {
