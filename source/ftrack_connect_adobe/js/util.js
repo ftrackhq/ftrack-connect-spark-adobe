@@ -46,20 +46,25 @@ FT.util = (function(){
      * Return API credentials using *callback*.
      */
     function getCredentials(callback) {
-        var config,
-            dataDir = getUserDataDir('ftrack-connect', 'ftrack'),
-            file = path.join(dataDir, 'credentials.json'),
-            data = require(file);
+        var dataDir = getUserDataDir('ftrack-connect', 'ftrack');
+        var file = path.join(dataDir, 'credentials.json');
+        var data = null;
+        var credentials = null;
 
         logger.debug('Reading credentials from file', file);
-        logger.debug('Read file data', data);
-
-        if (!data || !data.account || !data.account.credentials || !data.account.credentials.length > 0) {
-            callback(new Error('No credentials were found in: ' + file), null);
-        } else {
-            callback(null, data.account.credentials[0]);
+        try {
+            data = require(file);
+            logger.debug('Read file data', data);
+        } catch (err) {
+            logger.error('Failed to read data', err);
         }
 
+        if (!data || !data.account || !data.account.credentials || !data.account.credentials.length > 0) {
+            error = new Error('No credentials were found in: ' + file);
+        } else {
+            credentials = data.account.credentials[0];
+        }
+        callback(error, credentials);
     }
 
     return {
