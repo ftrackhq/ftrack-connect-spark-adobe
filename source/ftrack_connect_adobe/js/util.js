@@ -49,17 +49,45 @@ FT.util = (function(){
         var config,
             dataDir = getUserDataDir('ftrack-connect', 'ftrack'),
             file = path.join(dataDir, 'credentials.json'),
-            data = require(file);
+            data;
 
         logger.debug('Reading credentials from file', file);
-        logger.debug('Read file data', data);
 
-        if (!data || !data.account || !data.account.credentials || !data.account.credentials.length > 0) {
-            callback(new Error('No credentials were found in: ' + file), null);
-        } else {
-            callback(null, data.account.credentials[0]);
-        }
+        fs.readFile(file, 'utf8', function (error, data) {
+            if (error) {
+                logger.error('Error reading file.', error);
+                callback(error, null);
+                return;
+            }
 
+            logger.debug('Read file data', data);
+
+            // Try to parse the data as json.
+            try {
+                jsonData = JSON.parse(data);
+                logger.debug('Parsed json data', jsonData);
+            } catch (error) {
+                logger.error('Failed to parse json.', error);
+                callback(error, null);
+                return;
+            }
+
+            // Try to find the credentials.
+            if (
+                jsonData || jsonData.account ||
+                jsonData.account.credentials ||
+                jsonData.account.credentials.length > 0
+            ) {
+                logger.debug('Credentials found.');
+                callback(null, jsonData.account.credentials[0]);
+            } else {
+                logger.debug('Credentials not found.');
+                callback(
+                    new Error('No credentials were found in: ' + file),
+                    null
+                );
+            }
+        });
     }
 
     return {
