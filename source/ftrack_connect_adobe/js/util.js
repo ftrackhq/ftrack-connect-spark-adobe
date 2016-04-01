@@ -49,7 +49,8 @@ FT.util = (function(){
         var config,
             dataDir = getUserDataDir('ftrack-connect', 'ftrack'),
             file = path.join(dataDir, 'credentials.json'),
-            data;
+            data,
+            jsonData;
 
         logger.debug('Reading credentials from file', file);
 
