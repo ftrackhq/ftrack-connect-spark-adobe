@@ -10,7 +10,9 @@ FT.import = (function(){
         var encodedMetadata = JSON.stringify(metadata);
 
         // Verify active document
-        csInterface.evalScript('FTX.import.openDocument(\'' + path + '\', \'' + encodedMetadata + '\')', function (result) {
+        var extendscript = 'FTX.import.openDocument(\'' + path + '\', \'' + encodedMetadata + '\')';
+        logger.info('Executing extendscript:', extendscript);
+        csInterface.evalScript(extendscript, function (result) {
             if (result !== 'true') {
                 return next(new Error(
                     'Unable to open document at path: ' + path

@@ -29,6 +29,8 @@ FTX.metadata = (function(){
         }
     }
     var applicationAdapter = null;
+
+    // TODO: Detect application
     var isApplicationAfterEffects = false;
     if (isApplicationAfterEffects) {
         applicationAdapter = afterEffectsAdapter;
@@ -91,6 +93,10 @@ FTX.metadata = (function(){
         for(var i = 0; i < keys.length; i++) {
             key = keys[i];
             result[key] = xmpMetadata.getProperty(namespace, key);
+
+            if (typeof result[key] === 'object') {
+                result[key] = result[key].toString();
+            }
         }
         return result;
     }

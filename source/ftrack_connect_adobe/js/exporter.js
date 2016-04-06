@@ -155,6 +155,7 @@ FT.exporter = (function(){
         logger.info('Obtaining metadata', keys);
         var encodedKeys = JSON.stringify(keys)
         var extendScript = 'FTX.export.getDocumentMetadata(\'' + encodedKeys + '\')';
+        console.info('Executing ExtendScript', extendScript);
         csInterface.evalScript(extendScript, function (encodedResult) {
             logger.info('Obtained metadata', encodedResult);
             var error = null;
