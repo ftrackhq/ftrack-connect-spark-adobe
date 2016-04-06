@@ -91,7 +91,12 @@ FT.util = (function(){
         });
     }
 
+    function getResolverPlatfom() {
+        return (process.platform === 'win32') ? 'Windows' : 'Linux';
+    }
+
     return {
+        getResolverPlatfom: getResolverPlatfom,
         getCredentials: getCredentials
     };
 }());
