@@ -48,7 +48,7 @@ FT.util = (function(){
     function getCredentials(callback) {
         var config,
             dataDir = getUserDataDir('ftrack-connect', 'ftrack'),
-            file = path.join(dataDir, 'credentials.json'),
+            file = path.join(dataDir, 'config.json'),
             data,
             jsonData;
 
@@ -75,12 +75,11 @@ FT.util = (function(){
 
             // Try to find the credentials.
             if (
-                jsonData || jsonData.account ||
-                jsonData.account.credentials ||
-                jsonData.account.credentials.length > 0
+                jsonData || jsonData.accounts ||
+                jsonData.accounts.length > 0
             ) {
                 logger.debug('Credentials found.');
-                callback(null, jsonData.account.credentials[0]);
+                callback(null, jsonData.accounts[0]);
             } else {
                 logger.debug('Credentials not found.');
                 callback(
