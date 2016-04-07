@@ -79,7 +79,14 @@ FT.util = (function(){
                 jsonData.accounts.length > 0
             ) {
                 logger.debug('Credentials found.');
-                callback(null, jsonData.accounts[0]);
+                callback(
+                    null,
+                    {
+                        serverUrl: jsonData.accounts[0].server_url,
+                        apiUser: jsonData.accounts[0].api_user,
+                        apiKey: jsonData.accounts[0].api_key
+                    }
+                );
             } else {
                 logger.debug('Credentials not found.');
                 callback(
