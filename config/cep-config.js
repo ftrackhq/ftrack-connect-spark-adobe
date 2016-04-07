@@ -30,19 +30,19 @@ var config =
         type: 'Panel',
         name: 'ftrack [spark]',
         main_path: 'ftrack_connect_adobe/index.html',
-        script_path: 'ftrack_connect_adobe/extendscript/ftrack_connect_adobe.jsx',
+        script_path: 'ftrack_connect_adobe/index.jsx',
         size: {
             normal: {
-                width: 320,
-                height: 480
+                width: 480,
+                height: 640
             },
             min: {
-                width: 200,
-                height: 200
+                width: 375,
+                height: 375
             },
             max: {
-                width: 800,
-                height: 1200
+                width: 960,
+                height: 1280
             }
         },
         icons: {
