@@ -28,7 +28,7 @@ var config =
         version: project.version,
         id: 'com.ftrack.connect.adobe.panel',
         type: 'Panel',
-        name: 'ftrack [spark]',
+        name: 'ftrack [alpha]',
         main_path: 'ftrack_connect_adobe/index.html',
         script_path: 'ftrack_connect_adobe/index.jsx',
         size: {
@@ -57,13 +57,13 @@ var config =
                 disabled: 'build/staging/ftrack_connect_adobe/image/icon/icon_dark_disabled.png'
             },
         },
-        manifest: 'config/manifest.extension.xml',
+        manifest: 'bundle/manifest.extension.xml',
     }],
 
     builds: [
         {
-            bundle: { manifest: 'config/manifest.bundle.cc2014.xml' },
-            extensions: [{ manifest: 'config/manifest.extension.xml' }],
+            bundle: { manifest: 'bundle/manifest.bundle.cc2014.xml' },
+            extensions: [{ manifest: 'bundle/manifest.extension.xml' }],
             products: ['aftereffects', 'premiere', 'photoshop'],
             source: 'build/staging',
             families: ['CC2014', 'CC2015'],
