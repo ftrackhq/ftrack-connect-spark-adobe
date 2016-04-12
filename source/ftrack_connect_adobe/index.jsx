@@ -22,6 +22,10 @@ $._ext = {
         }
 
         return numFiles;
+    },
+    // Recieve application data.
+    updateHostEnvironment: function (jsonData) {
+        FTX._hostEnvironment = JSON.parse(jsonData);
     }
 };
 
@@ -38,4 +42,8 @@ init();
 
 if (typeof FTX !== 'object') {
     FTX = {};
+}
+
+FTX.getAppId = function () {
+    return FTX._hostEnvironment.appId;
 }
