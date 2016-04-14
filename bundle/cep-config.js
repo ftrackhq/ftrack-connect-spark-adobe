@@ -64,7 +64,7 @@ var config =
         {
             bundle: { manifest: 'bundle/manifest.bundle.cc2014.xml' },
             extensions: [{ manifest: 'bundle/manifest.extension.xml' }],
-            products: ['aftereffects', 'premiere', 'photoshop'],
+            products: ['photoshop', 'illustrator', 'indesign', 'flash', 'premiere', 'prelude', 'aftereffects', 'dreamweaver', 'incopy'],
             source: 'build/staging',
             families: ['CC2014', 'CC2015'],
             dependencies: dependencies
