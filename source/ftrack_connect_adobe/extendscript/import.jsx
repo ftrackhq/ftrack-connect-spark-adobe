@@ -18,8 +18,8 @@ FTX.import = (function(){
         return true;
     }
 
-    /** Open document in *path* and store *encodedMetadata* in it. */
-    function openDocumentPremiere(path, encodedMetadata) {
+    /** Open document in *path*. */
+    function openDocumentPremiere(path) {
         if (app.project) {
             app.project.importFiles([path]);
             return true;
