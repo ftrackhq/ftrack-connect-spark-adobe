@@ -28,7 +28,7 @@ var config =
         version: project.version,
         id: 'com.ftrack.connect.adobe.panel',
         type: 'Panel',
-        name: 'ftrack [alpha]',
+        name: 'ftrack [spark]',
         main_path: 'ftrack_connect_adobe/index.html',
         script_path: 'ftrack_connect_adobe/index.jsx',
         size: {
