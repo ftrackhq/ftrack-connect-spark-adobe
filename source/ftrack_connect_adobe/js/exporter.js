@@ -76,21 +76,72 @@ FT.exporter = (function(){
         var result = [];
         try {
             media.forEach(function (file) {
-                var fileParts = path.parse(file.path);
+                var fileExtension = path.extname(file.path);
+                var fileName = path.basename(file.path, fileExtension);
                 var fileSize = fs.statSync(file.path).size;
                 result.push({
                     use: file.use,
                     path: file.path,
-                    name: fileParts.name,
-                    extension: fileParts.ext,
-                    size: fileSize
+                    name: fileName,
+                    extension: fileExtension,
+                    size: fileSize,
+                    metadata: file.metadata,
                 });
-            })
+            });
 
         } catch (error) {
             err = error;
         }
         callback(err, result);
+    }
+
+    /** Render workarea in premiere. */
+    function renderPremiereWorkarea(directoryPath, next) {
+        logger.log(
+            'Rendering sequence to: ', directoryPath
+        );
+
+        var preset = path.join(
+            csInterface.getSystemPath(SystemPath.EXTENSION),
+            'ftrack_connect_adobe',
+            'resource',
+            'ftrack.epr'
+        );
+        logger.log('Using preset', preset);
+
+        var range = 'workarea';
+
+        var extendScript = [
+            'FTX.premiereExport.renderActiveSequence(',
+            '\'' + directoryPath + '\',',
+            '\'' + preset + '\',',
+            '\'' + range + '\',',
+            ')'
+        ].join('');
+        csInterface.evalScript(extendScript, function (jobId) {
+            next(null, jobId);
+        });
+    }
+
+    /** Setup listeners for encoding job completion, error and progress. */
+    function setupEncodingListeners(jobId, next) {
+        csInterface.addEventListener(
+            'encoderJobComplete', function (event) {
+                logger.info('Encoder job completed', event.data.jobId);
+                if (event.data.jobId === jobId) {
+                    next(null, event.data.filePath);
+                }
+            }.bind(this)
+        );
+
+        csInterface.addEventListener(
+            'encoderJobError', function (event) {
+                logger.error('Encoder job failed', event.data.jobId);
+                if (event.data.jobId === jobId) {
+                    next(new Error('Encoding job failed'));
+                }
+            }.bind(this)
+        );
     }
 
     /**
@@ -111,18 +162,67 @@ FT.exporter = (function(){
 
         steps.push(verifyExport);
         steps.push(getTemporaryDirectory);
-        steps.push(function (temporaryDirectory, next) {
-            directoryPath = temporaryDirectory;
-            next(null, directoryPath);
+        steps.push(function (directoryPath, next) {
+            temporaryDirectory = directoryPath;
+            next(null, temporaryDirectory);
         });
 
         if (options.review) {
-            logger.debug('Including reviewable media');
-            steps.push(saveJpeg, verifyReturnedValue);
-            steps.push(function (filePath, next) {
-                exportedFiles.push({ path: filePath, use: 'review' });
-                next(null, directoryPath);
-            });
+            if (csInterface.getHostEnvironment().appId === 'PPRO') {
+                logger.debug('Including reviewable media for premiere.');
+                var reviewMetadata;
+
+                steps.push(
+                    function (renderData, next) {
+                        logger.log(
+                            'Getting sequence metadata'
+                        );
+                        var extendScript = 'FTX.premiereExport.getSequenceMetadata()';
+                        csInterface.evalScript(extendScript, function (metadata) {
+                            reviewMetadata = JSON.parse(metadata);
+                            logger.debug('Recieved sequence metadata:', reviewMetadata);
+                            next(null, temporaryDirectory);
+                        });
+                    },
+                    function (directoryPath, next) {
+                        logger.log(
+                            'Getting thumbnail'
+                        );
+                        var extendScript = "FTX.premiereExport.saveActiveFrame('" + directoryPath + "')";
+                        csInterface.evalScript(extendScript, function (thumbnailPath) {
+                            exportedFiles.push({
+                                path: thumbnailPath,
+                                use: 'thumbnail'
+                            });
+                            logger.debug('Recieved thumbnail:', thumbnailPath);
+                            next(null, temporaryDirectory);
+                        });
+                    },
+                    renderPremiereWorkarea,
+                    verifyReturnedValue,
+                    setupEncodingListeners,
+                    function (filePath, next) {
+                        logger.debug('Rendered file data: ', filePath);
+                        exportedFiles.push({
+                            path: filePath,
+                            use: 'video-review',
+                            metadata: {
+                                fps: reviewMetadata.fps,
+                                frames: reviewMetadata.frames
+                            }
+                        });
+                        next(null, temporaryDirectory);
+                    }
+                );
+
+            } else {
+                logger.debug('Including reviewable media');
+                steps.push(saveJpeg, verifyReturnedValue);
+                steps.push(function (filePath, next) {
+                    exportedFiles.push({ path: filePath, use: 'image-review' });
+                    next(null, temporaryDirectory);
+                });
+            }
         }
 
         if (options.delivery) {
@@ -130,7 +230,7 @@ FT.exporter = (function(){
             steps.push(saveDocument, verifyReturnedValue);
             steps.push(function (filePath, next) {
                 exportedFiles.push({ path: filePath, use: 'delivery' });
-                next(null, directoryPath);
+                next(null, temporaryDirectory);
             });
         }
 

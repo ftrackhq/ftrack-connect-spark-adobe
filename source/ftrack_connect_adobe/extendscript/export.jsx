@@ -126,3 +126,114 @@ FTX.export = (function(){
         resizeImageFit: resizeImageFit
     };
 }());
+
+
+FTX.premiereExport = (function() {
+    /** 
+     * Send CSXS Event of *type* with a JSON-encoded payload of *data*.
+     * 
+     * Used for communication with CEF/JavaScript using CSInterface.
+     */
+    function sendEvent(type, data) {
+        var eventObject = new CSXSEvent();
+        eventObject.type = type;
+        eventObject.data = JSON.stringify(data);
+        eventObject.dispatch();
+    }
+
+    /** On encoder job completition, forward the event to CEF. */
+    function onEncoderJobComplete(jobId, filePath) {
+        sendEvent('encoderJobComplete', {
+            jobId: jobId,
+            filePath: filePath
+        });
+    }
+
+    /** On encoder job error, forward the event to CEF. */
+    function onEncoderJobError(jobId) {
+        sendEvent('encoderJobError', {
+            jobId: jobId
+        });
+    }
+
+    /** On encoder job progress, forward the event to CEF. */
+    function onEncoderJobProgress(jobId, progress) {
+        sendEvent('encoderJobProgress', {
+            jobId: jobId,
+            progress: progress
+        });
+    }
+
+    /** 
+     * Render the currently active sequence using Adobe Media Encoder.
+     *
+     * Save the encoded sequence under *directoryPath*
+     * *presetPath* should be a file path to an export preset.
+     * *sequenceRangeName* controls which part of the sequence to encode and can 
+     * be one of:
+     * 
+     *     - entire
+     *     - inout
+     *     - workarea
+     */
+    function renderActiveSequence(directoryPath, presetPath, sequenceRangeName) {
+        app.enableQE();
+        app.encoder.bind('onEncoderJobComplete', onEncoderJobComplete);
+        app.encoder.bind('onEncoderJobError', onEncoderJobError);
+        app.encoder.bind('onEncoderJobProgress', onEncoderJobProgress);
+
+        var sequence = qe.project.getActiveSequence();
+
+        var filePath = directoryPath + FTX.export.sanitizeFileName(sequence.name);
+
+        var sequenceRangeMap = {
+            entire: app.encoder.ENCODE_ENTIRE,
+            inout: app.encoder.ENCODE_IN_TO_OUT,
+            workarea: app.encoder.ENCODE_WORKAREA
+        };
+
+        var sequenceRange = sequenceRangeMap[sequenceRangeName];
+
+        var jobId = app.encoder.encodeSequence(
+            app.project.activeSequence,
+            filePath,
+            (new File(presetPath)).fsName,
+            sequenceRange
+        );
+        app.encoder.startBatch();
+
+        return jobId;
+    }
+
+    /** Return metadata for the current sequence work area. */
+    function getSequenceMetadata(){
+        app.enableQE();
+        var sequence = qe.project.getActiveSequence();
+        var frames = sequence.workOutPoint.frames - sequence.workInPoint.frames;
+        var secs = sequence.workOutPoint.secs - sequence.workInPoint.secs;
+        var fps = frames / secs;
+
+        return JSON.stringify({
+            fps: fps,
+            frames: frames
+        });
+    }
+
+    /** 
+     * Save the currently active frame as an JPEG in *directory*.
+     */
+    function saveActiveFrame(directory) {
+        app.enableQE();
+        var sequence = qe.project.getActiveSequence();
+        var time = sequence.CTI.timecode;
+        var filePath = directory + FTX.export.sanitizeFileName(sequence.name) + '.jpg';
+        sequence.exportFrameJPEG(time, filePath);
+        return filePath;
+    }
+
+    return {
+        renderActiveSequence: renderActiveSequence,
+        getSequenceMetadata: getSequenceMetadata,
+        saveActiveFrame: saveActiveFrame
+    };
+}());
