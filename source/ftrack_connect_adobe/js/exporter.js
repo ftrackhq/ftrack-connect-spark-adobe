@@ -101,7 +101,7 @@ FT.exporter = (function(){
             'Rendering sequence to: ', directoryPath
         );
 
-        var preset = '/Users/bjry/dev/random_test_data/result/ftrack.epr';
+        var preset = path.join(__dirname, 'resource', 'ftrack.epr');
         var range = 'workarea';
 
         var extendScript = [
