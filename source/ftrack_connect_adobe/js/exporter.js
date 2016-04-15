@@ -101,7 +101,14 @@ FT.exporter = (function(){
             'Rendering sequence to: ', directoryPath
         );
 
-        var preset = path.join(__dirname, 'resource', 'ftrack.epr');
+        var preset = path.join(
+            csInterface.getSystemPath(SystemPath.EXTENSION),
+            'ftrack_connect_adobe',
+            'resource',
+            'ftrack.epr'
+        );
+        logger.log('Using preset', preset);
+
         var range = 'workarea';
 
         var extendScript = [
