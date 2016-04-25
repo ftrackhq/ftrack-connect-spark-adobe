@@ -8,7 +8,7 @@
 module.exports = function (grunt) {
     grunt.initConfig({
         cep: {
-            options: require('./config/cep-config.js'),
+            options: require('./bundle/cep-config.js'),
 
             build: {
                 options: {

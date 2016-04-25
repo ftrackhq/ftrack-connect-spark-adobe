@@ -30,19 +30,19 @@ var config =
         type: 'Panel',
         name: 'ftrack [spark]',
         main_path: 'ftrack_connect_adobe/index.html',
-        script_path: 'ftrack_connect_adobe/extendscript/ftrack_connect_adobe.jsx',
+        script_path: 'ftrack_connect_adobe/index.jsx',
         size: {
             normal: {
-                width: 320,
-                height: 480
+                width: 480,
+                height: 640
             },
             min: {
-                width: 200,
-                height: 200
+                width: 375,
+                height: 375
             },
             max: {
-                width: 800,
-                height: 1200
+                width: 960,
+                height: 1280
             }
         },
         icons: {
@@ -57,14 +57,14 @@ var config =
                 disabled: 'build/staging/ftrack_connect_adobe/image/icon/icon_dark_disabled.png'
             },
         },
-        manifest: 'config/manifest.extension.xml',
+        manifest: 'bundle/manifest.extension.xml',
     }],
 
     builds: [
         {
-            bundle: { manifest: 'config/manifest.bundle.cc2014.xml' },
-            extensions: [{ manifest: 'config/manifest.extension.xml' }],
-            products: ['aftereffects', 'premiere', 'photoshop'],
+            bundle: { manifest: 'bundle/manifest.bundle.cc2014.xml' },
+            extensions: [{ manifest: 'bundle/manifest.extension.xml' }],
+            products: ['photoshop', 'illustrator', 'indesign', 'flash', 'premiere', 'prelude', 'aftereffects', 'dreamweaver', 'incopy'],
             source: 'build/staging',
             families: ['CC2014', 'CC2015'],
             dependencies: dependencies
