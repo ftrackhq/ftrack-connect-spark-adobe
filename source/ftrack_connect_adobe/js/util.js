@@ -101,8 +101,30 @@ FT.util = (function(){
         return (process.platform === 'win32') ? 'Windows' : 'Linux';
     }
 
+    function writeDataFile(filename, data, callback) {
+        var folder = getUserDataDir('ftrack-connect/data', 'ftrack'),
+            result = path.join(folder, filename);
+
+        try {
+            var stat = fs.statSync(folder);
+            if (!stat.isDirectory()) {
+                fs.mkdirSync(folder);
+            }
+        } catch (error) {
+            logger.error(error);
+        }
+
+        fs.writeFile(result, JSON.stringify(data), function (error) {
+            if (error) {
+                callback(error, null);
+            }
+            callback(null, result);
+        });
+    }
+
     return {
         getResolverPlatfom: getResolverPlatfom,
-        getCredentials: getCredentials
+        getCredentials: getCredentials,
+        writeDataFile: writeDataFile
     };
 }());
