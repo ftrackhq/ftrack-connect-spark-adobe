@@ -4,8 +4,17 @@ FTX.import = (function(){
 
     /** Open document in *path* and store *encodedMetadata* in it. */
     function openDocument(path, encodedMetadata) {
+        var appId = FTX.getAppId();
 
-        app.open(new File(path));
+        var importedDocument = app.open(new File(path));
+
+        // Open files in photoshop as a copy to ensure they are not overwritten
+        // by misstake if the users starts to edit them.
+        if (['PHSP', 'PHXS']) {
+            importedDocument.duplicate();
+            importedDocument.close();
+        }
+
         if (encodedMetadata) {
             try {
                 var metadata = JSON.parse(encodedMetadata);
