@@ -107,12 +107,16 @@ FT.util = (function(){
             result = path.join(folder, filename);
 
         try {
+            // Check if the folder exists.
             var stat = fs.statSync(folder);
-            if (!stat.isDirectory()) {
-                fs.mkdirSync(folder);
-            }
         } catch (error) {
-            logger.error(error);
+            logger.debug('Creating data folder.');
+            try {
+                fs.mkdirSync(folder);
+            } catch (error) {
+                callback(error, null);
+                return;
+            }
         }
 
         fs.writeFile(result, JSON.stringify(data), function (error) {
