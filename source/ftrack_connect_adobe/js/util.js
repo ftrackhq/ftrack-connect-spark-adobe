@@ -102,7 +102,7 @@ FT.util = (function(){
     }
 
     /** Write *filename* to ftrack-connect/data with *data*. */
-    function writeDataFile(filename, data, callback) {
+    function writeSecurePublishFile(filename, data, callback) {
         var folder = getUserDataDir('ftrack-connect/data', 'ftrack'),
             result = path.join(folder, filename);
 
@@ -130,6 +130,6 @@ FT.util = (function(){
     return {
         getResolverPlatfom: getResolverPlatfom,
         getCredentials: getCredentials,
-        writeDataFile: writeDataFile
+        writeSecurePublishFile: writeSecurePublishFile
     };
 }());
