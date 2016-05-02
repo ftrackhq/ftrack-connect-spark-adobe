@@ -164,6 +164,12 @@ FTX.premiereExport = (function() {
         });
     }
 
+
+    /** Return project name */
+    function getProjectName() {
+        return app.project && app.project.name || null;
+    }
+
     /** 
      * Render the currently active sequence using Adobe Media Encoder.
      *
@@ -176,7 +182,7 @@ FTX.premiereExport = (function() {
      *     - inout
      *     - workarea
      */
-    function renderActiveSequence(directoryPath, presetPath, sequenceRangeName) {
+    function renderActiveSequence(directoryPath, presetPath, sequenceRangeName, autoStart) {
         app.enableQE();
         app.encoder.bind('onEncoderJobComplete', onEncoderJobComplete);
         app.encoder.bind('onEncoderJobError', onEncoderJobError);
@@ -200,7 +206,10 @@ FTX.premiereExport = (function() {
             (new File(presetPath)).fsName,
             sequenceRange
         );
-        app.encoder.startBatch();
+
+        if (autoStart) {
+            app.encoder.startBatch();
+        }
 
         return jobId;
     }
@@ -231,9 +240,31 @@ FTX.premiereExport = (function() {
         return filePath;
     }
 
+    /** 
+     * Save as project as a file in *directory*. 
+     *
+     * *directory* should end with a separator.
+     */
+    function saveProject(directory) {
+        var originalPath = document.getFilePath();
+
+        var projectName = FTX.export.sanitizeFileName(
+            getProjectName() || 'project.pproj'
+        );
+        var filePath = directory + projectName;
+        app.project.saveAs(filePath, 0, true);
+
+        // Save in original path to reset working project.
+        app.project.saveAs(originalPath);
+
+        return filePath;
+    }
+
     return {
+        getProjectName: getProjectName,
         renderActiveSequence: renderActiveSequence,
         getSequenceMetadata: getSequenceMetadata,
-        saveActiveFrame: saveActiveFrame
+        saveActiveFrame: saveActiveFrame,
+        saveProject: saveProject
     };
 }());

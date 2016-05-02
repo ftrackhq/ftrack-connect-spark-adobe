@@ -8,6 +8,7 @@ FT.exporter = (function(){
     var async = require('async');
     var logger = window.console;
     var csInterface = window.top.csInterface;
+    var APP_ID = csInterface.getHostEnvironment().appId;
 
     /** Verify export */
     function verifyExport(next) {
@@ -96,9 +97,15 @@ FT.exporter = (function(){
     }
 
     /** Render workarea in premiere. */
-    function renderPremiereWorkarea(directoryPath, next) {
-        logger.log(
-            'Rendering sequence to: ', directoryPath
+    function renderActiveSequence(options, next) {
+        options = options || {};
+        var directoryPath = options.directoryPath;
+        var sourceRange = options.sourceRange || 'workarea';
+        var autoStart = options.autoStart || false;
+
+        logger.debug(
+            'Rendering sequence using options', directoryPath, sourceRange,
+            autoStart
         );
 
         var preset = path.join(
@@ -109,13 +116,12 @@ FT.exporter = (function(){
         );
         logger.log('Using preset', preset);
 
-        var range = 'workarea';
-
         var extendScript = [
             'FTX.premiereExport.renderActiveSequence(',
             '\'' + directoryPath + '\',',
             '\'' + preset + '\',',
-            '\'' + range + '\',',
+            '\'' + sourceRange + '\',',
+            autoStart,
             ')'
         ].join('');
         csInterface.evalScript(extendScript, function (jobId) {
@@ -124,11 +130,11 @@ FT.exporter = (function(){
     }
 
     /** Setup listeners for encoding job completion, error and progress. */
-    function setupEncodingListeners(jobId, next) {
+    function setupEncodingListeners(options, next) {
         csInterface.addEventListener(
             'encoderJobComplete', function (event) {
                 logger.info('Encoder job completed', event.data.jobId);
-                if (event.data.jobId === jobId) {
+                if (event.data.jobId === options.jobId) {
                     next(null, event.data.filePath);
                 }
             }.bind(this)
@@ -137,11 +143,55 @@ FT.exporter = (function(){
         csInterface.addEventListener(
             'encoderJobError', function (event) {
                 logger.error('Encoder job failed', event.data.jobId);
-                if (event.data.jobId === jobId) {
+                if (event.data.jobId === options.jobId) {
                     next(new Error('Encoding job failed'));
                 }
             }.bind(this)
         );
+
+        csInterface.addEventListener(
+            'encoderJobProgress', function (event) {
+                if (options.showProgress && event.data.jobId === options.jobId) {
+                    var progress = Math.round(event.data.progress * 100);
+                    var header = 'Encoding sequence (' + progress + '%)';
+                    var message = 'Please wait while the sequence is being encoded. The export will continue automatically once encoding is complete.';
+                    options.showProgress({
+                        header: header,
+                        message: message,
+                        loader: true,
+                        progress: progress
+                    })
+                }
+            }.bind(this)
+        );
+    }
+
+    function getSequenceMetadata(renderData, next) {
+        logger.log('Getting sequence metadata');
+        var extendScript = 'FTX.premiereExport.getSequenceMetadata()';
+        csInterface.evalScript(extendScript, function (metadata) {
+            reviewMetadata = JSON.parse(metadata);
+            logger.debug('Recieved sequence metadata:', reviewMetadata);
+            next(null, reviewMetadata);
+        });
+    }
+
+    function getThumbnail(directoryPath, next) {
+        logger.log('Getting thumbnail');
+        var extendScript = "FTX.premiereExport.saveActiveFrame('" + directoryPath + "')";
+        csInterface.evalScript(extendScript, function (thumbnailPath) {
+            logger.debug('Received thumbnail:', thumbnailPath);
+            next(null, thumbnailPath);
+        });
+    }
+
+    function savePremiereProject(directoryPath, next) {
+        logger.log('Saving premiere project');
+        var extendScript = "FTX.premiereExport.saveProject('" + directoryPath + "')";
+        csInterface.evalScript(extendScript, function (projectFilePath) {
+            logger.debug('Saved premiere project:', projectFilePath);
+            next(null, projectFilePath);
+        });
     }
 
     /**
@@ -163,69 +213,122 @@ FT.exporter = (function(){
         steps.push(verifyExport);
         steps.push(getTemporaryDirectory);
         steps.push(function (directoryPath, next) {
+            logger.debug('Generated temporary directory.');
             temporaryDirectory = directoryPath;
             next(null, temporaryDirectory);
         });
 
-        if (options.review) {
-            if (csInterface.getHostEnvironment().appId === 'PPRO') {
-                logger.debug('Including reviewable media for premiere.');
-                var reviewMetadata;
+        if (options.thumbnail && APP_ID === 'PPRO') {
+            logger.debug('Including thumbnail in export.');
+            steps.push(getThumbnail);
+            steps.push(function (thumbnailPath, next) {
+                logger.debug('Exported thumbnail', thumbnailPath);
+                exportedFiles.push({
+                    path: thumbnailPath,
+                    use: 'thumbnail'
+                });
+                next(null, temporaryDirectory);
+            });
+        }
 
-                steps.push(
-                    function (renderData, next) {
-                        logger.log(
-                            'Getting sequence metadata'
-                        );
-                        var extendScript = 'FTX.premiereExport.getSequenceMetadata()';
-                        csInterface.evalScript(extendScript, function (metadata) {
-                            reviewMetadata = JSON.parse(metadata);
-                            logger.debug('Recieved sequence metadata:', reviewMetadata);
-                            next(null, temporaryDirectory);
+        if (options.project_file && APP_ID === 'PPRO') {
+            logger.debug('Including project file in export.');
+            steps.push(savePremiereProject);
+            steps.push(function (projectPath, next) {
+                logger.debug('Exported project file', projectPath);
+                exportedFiles.push({
+                    path: projectPath,
+                    use: 'project_file'
+                });
+                next(null, temporaryDirectory);
+            });
+        }
+
+        if ((options.review || options.rendered_sequence) && APP_ID === 'PPRO') {
+            logger.debug('Including rendered sequence in export.');
+
+            var autoStartEncoding = !!options.review;
+            var message = '';
+            var reviewMetadata;
+            if (autoStartEncoding) {
+                message = [
+                    'Starting Adobe Media Encoder. Once encoding has ',
+                    'completed, the process will resume.'
+                ].join('');
+            } else {
+                message = [
+                    'Starting Adobe Media Encoder. Configure any additional ',
+                    'options and start encoding from there. Once completed, ',
+                    'publishing will continue.'
+                ].join('');
+            }
+
+            if (options.review) {
+                steps.push(getSequenceMetadata);
+                steps.push(function (metadata, next) {
+                    logger.debug('Obtained sequence metadata', metadata);
+                    reviewMetadata = metadata;
+                    next(null, temporaryDirectory);
+                });
+            }
+
+            steps.push(
+                function (temporaryDirectory, next) {
+                    if (options.showProgress) {
+                        options.showProgress({
+                            header: 'Encoding sequence',
+                            message: message
                         });
-                    },
-                    function (directoryPath, next) {
-                        logger.log(
-                            'Getting thumbnail'
-                        );
-                        var extendScript = "FTX.premiereExport.saveActiveFrame('" + directoryPath + "')";
-                        csInterface.evalScript(extendScript, function (thumbnailPath) {
-                            exportedFiles.push({
-                                path: thumbnailPath,
-                                use: 'thumbnail'
-                            });
-                            logger.debug('Recieved thumbnail:', thumbnailPath);
-                            next(null, temporaryDirectory);
-                        });
-                    },
-                    renderPremiereWorkarea,
-                    verifyReturnedValue,
-                    setupEncodingListeners,
-                    function (filePath, next) {
-                        logger.debug('Rendered file data: ', filePath);
+                    }
+
+                    renderActiveSequence({
+                        directoryPath: temporaryDirectory,
+                        sourceRange: options.source_range,
+                        autoStart: autoStartEncoding
+                    }, next);
+                },
+                verifyReturnedValue,
+                function (jobId, next) {
+                    setupEncodingListeners(
+                        {jobId: jobId, showProgress: options.showProgress},
+                        next
+                    );
+                },
+                function (encodedMediaPath, next) {
+                    logger.debug('Exported rendered sequence', encodedMediaPath);
+
+                    if (options.reivew) {
                         exportedFiles.push({
-                            path: filePath,
+                            path: encodedMediaPath,
                             use: 'video-review',
                             metadata: {
                                 fps: reviewMetadata.fps,
                                 frames: reviewMetadata.frames
                             }
                         });
-                        next(null, temporaryDirectory);
-                    }
-                );
 
-            } else {
-                logger.debug('Including reviewable media');
-                steps.push(saveJpeg, verifyReturnedValue);
-                steps.push(function (filePath, next) {
-                    exportedFiles.push({ path: filePath, use: 'image-review' });
+                    } else {
+                        exportedFiles.push({
+                            path: encodedMediaPath,
+                            use: 'rendered_sequence'
+                        });
+                    }
+
                     next(null, temporaryDirectory);
-                });
-            }
+                }
+            );
         }
 
-        if (options.delivery) {
+        if (options.review && (APP_ID === 'PHSP' || APP_ID === 'PHXS')) {
+            logger.debug('Including reviewable media');
+            steps.push(saveJpeg, verifyReturnedValue);
+            steps.push(function (filePath, next) {
+                exportedFiles.push({ path: filePath, use: 'image-review' });
+                next(null, temporaryDirectory);
+            });
+        }
+
+        if (options.delivery && (APP_ID === 'PHSP' || APP_ID === 'PHXS')) {
             logger.debug('Including deliverable media');
             steps.push(saveDocument, verifyReturnedValue);
             steps.push(function (filePath, next) {
@@ -275,6 +378,9 @@ FT.exporter = (function(){
      */
     function getDocumentName(next) {
         var extendScript = 'FTX.export.getDocumentName()';
+        if (APP_ID === 'PPRO') {
+            extendScript = 'FTX.premiereExport.getProjectName()';
+        }
         csInterface.evalScript(extendScript, function (documentName) {
             verifyReturnedValue(documentName, next);
         });
