@@ -101,6 +101,7 @@ FT.util = (function(){
         return (process.platform === 'win32') ? 'Windows' : 'Linux';
     }
 
+    /** Write *filename* to ftrack-connect/data with *data*. */
     function writeDataFile(filename, data, callback) {
         var folder = getUserDataDir('ftrack-connect/data', 'ftrack'),
             result = path.join(folder, filename);
