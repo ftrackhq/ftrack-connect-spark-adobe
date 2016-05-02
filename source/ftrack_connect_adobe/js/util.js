@@ -101,8 +101,35 @@ FT.util = (function(){
         return (process.platform === 'win32') ? 'Windows' : 'Linux';
     }
 
+    /** Write *filename* to ftrack-connect/data with *data*. */
+    function writeSecurePublishFile(filename, data, callback) {
+        var folder = getUserDataDir('ftrack-connect/data', 'ftrack'),
+            result = path.join(folder, filename);
+
+        try {
+            // Check if the folder exists.
+            var stat = fs.statSync(folder);
+        } catch (error) {
+            logger.debug('Creating data folder.');
+            try {
+                fs.mkdirSync(folder);
+            } catch (error) {
+                callback(error, null);
+                return;
+            }
+        }
+
+        fs.writeFile(result, JSON.stringify(data), function (error) {
+            if (error) {
+                callback(error, null);
+            }
+            callback(null, result);
+        });
+    }
+
     return {
         getResolverPlatfom: getResolverPlatfom,
-        getCredentials: getCredentials
+        getCredentials: getCredentials,
+        writeSecurePublishFile: writeSecurePublishFile
     };
 }());
