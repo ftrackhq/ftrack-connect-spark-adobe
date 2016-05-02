@@ -10,7 +10,7 @@ FTX.import = (function(){
 
         // Open files in photoshop as a copy to ensure they are not overwritten
         // by misstake if the users starts to edit them.
-        if (['PHSP', 'PHXS']) {
+        if (appId === 'PHSP' || appId === 'PHXS') {
             importedDocument.duplicate();
             importedDocument.close();
         }
