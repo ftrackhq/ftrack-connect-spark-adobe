@@ -27,6 +27,15 @@ FTX.import = (function(){
         return false;
     }
 
+    /** Open *path* in after effects. */
+    function openDocumentAE(path) {
+        if (app.project) {
+            app.project.importFile(new ImportOptions(new File(path)));
+            return true;
+        }
+        return false;
+    }
+
     var methods = {
         openDocument: openDocument
     };
@@ -35,6 +44,8 @@ FTX.import = (function(){
 
     if (appId === 'PPRO') {
         methods.openDocument = openDocumentPremiere
+    } else if (appId === 'AEFT') {
+        methods.openDocument = openDocumentAE
     }
 
     return methods;
