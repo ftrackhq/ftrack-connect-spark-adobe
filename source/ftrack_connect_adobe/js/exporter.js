@@ -276,8 +276,8 @@ FT.exporter = (function(){
             } else {
                 message = [
                     'Starting Adobe Media Encoder. Configure any additional ',
-                    'options and start encoding from there. Once completed, ',
-                    'publishing will continue.'
+                    'options and start encoding from there ("Start queue"). ',
+                    'Once completed, publishing will continue.'
                 ].join('');
             }
 
