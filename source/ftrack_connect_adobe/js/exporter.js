@@ -218,6 +218,22 @@ FT.exporter = (function(){
             next(null, temporaryDirectory);
         });
 
+        // Validate that an active sequence exists or the rest of the export
+        // will fail.
+        if (APP_ID === 'PPRO') {
+            steps.push(function (directoryPath, next) {
+                logger.debug('Checking for active sequence.');
+                var extendScript = "FTX.premiereExport.hasActiveSequence()";
+                csInterface.evalScript(extendScript, function (active) {
+                    if (active === 'true') {
+                        next(null, directoryPath);
+                    } else {
+                        next(new Error('No active sequence found.'));
+                    }
+                });
+            });
+        }
+
         if (options.thumbnail && APP_ID === 'PPRO') {
             logger.debug('Including thumbnail in export.');
             steps.push(getThumbnail);
@@ -297,7 +313,7 @@ FT.exporter = (function(){
                 function (encodedMediaPath, next) {
                     logger.debug('Exported rendered sequence', encodedMediaPath);
 
-                    if (options.reivew) {
+                    if (options.review) {
                         exportedFiles.push({
                             path: encodedMediaPath,
                             use: 'video-review',

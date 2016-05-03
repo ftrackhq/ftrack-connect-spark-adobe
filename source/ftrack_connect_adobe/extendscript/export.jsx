@@ -260,11 +260,20 @@ FTX.premiereExport = (function() {
         return filePath;
     }
 
+    /** Return true if an active sequence exists. */
+    function hasActiveSequence() {
+        app.enableQE();
+        var sequence = qe.project.getActiveSequence();
+
+        return sequence !== null;
+    }
+
     return {
         getProjectName: getProjectName,
         renderActiveSequence: renderActiveSequence,
         getSequenceMetadata: getSequenceMetadata,
         saveActiveFrame: saveActiveFrame,
-        saveProject: saveProject
+        saveProject: saveProject,
+        hasActiveSequence: hasActiveSequence
     };
 }());
