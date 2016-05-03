@@ -78,7 +78,7 @@ FT.exporter = (function(){
         try {
             media.forEach(function (file) {
                 var fileExtension = path.extname(file.path);
-                var fileName = path.basename(file.path, fileExtension);
+                var fileName = file.name || path.basename(file.path, fileExtension);
                 var fileSize = fs.statSync(file.path).size;
                 result.push({
                     use: file.use,
@@ -241,6 +241,7 @@ FT.exporter = (function(){
                 logger.debug('Exported thumbnail', thumbnailPath);
                 exportedFiles.push({
                     path: thumbnailPath,
+                    name: 'thumbnail',
                     use: 'thumbnail'
                 });
                 next(null, temporaryDirectory);
@@ -254,6 +255,7 @@ FT.exporter = (function(){
                 logger.debug('Exported project file', projectPath);
                 exportedFiles.push({
                     path: projectPath,
+                    name: 'premiere-project',
                     use: 'project_file'
                 });
                 next(null, temporaryDirectory);
@@ -326,6 +328,7 @@ FT.exporter = (function(){
                     } else {
                         exportedFiles.push({
                             path: encodedMediaPath,
+                            name: 'main',
                             use: 'rendered_sequence'
                         });
                     }
@@ -348,7 +351,9 @@ FT.exporter = (function(){
             logger.debug('Including deliverable media');
             steps.push(saveDocument, verifyReturnedValue);
             steps.push(function (filePath, next) {
-                exportedFiles.push({ path: filePath, use: 'delivery' });
+                exportedFiles.push(
+                    { path: filePath, name: 'photoshop-document', use: 'delivery' }
+                );
                 next(null, temporaryDirectory);
             });
         }
