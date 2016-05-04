@@ -11,6 +11,7 @@ ftrack connect integration for Adobe Creative Cloud applications.
     :maxdepth: 1
 
     introduction
+    getting_started
     premiere/index
     photoshop/index
     usage/index
