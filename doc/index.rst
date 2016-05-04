@@ -15,7 +15,6 @@ ftrack connect integration for Adobe Creative Cloud applications.
     premiere/index
     photoshop/index
     usage/index
-    development/index
     release/index
     glossary
 
