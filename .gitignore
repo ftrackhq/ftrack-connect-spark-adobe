@@ -20,5 +20,7 @@ Thumbs.db
 .settings
 .idea/
 
+.eggs/
+
 # NPM Packages
 node_modules
