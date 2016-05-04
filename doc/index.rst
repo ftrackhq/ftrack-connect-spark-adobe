@@ -10,8 +10,11 @@ ftrack connect integration for Adobe Creative Cloud applications.
 .. toctree::
     :maxdepth: 1
 
-    installing
-    using
+    introduction
+    premiere/index
+    photoshop/index
+    usage/index
+    development/index
     release/index
     glossary
 
