@@ -35,8 +35,13 @@ Open Connect and sign in with your company's ftrack URL, e.g.
 ------------------
 
 Download the Adobe extension from the
-`ftrack Integrations page <https://www.ftrack.com/integrations>`_ and install
-it.
+`ftrack Integrations page <https://www.ftrack.com/integrations>`_. Open ZXP
+Installer, locate the downloaded ZXP file and install it by dropping it on ZXP
+Installer.
+
+.. figure:: /image/install_extension.png
+   :scale: 90 %
+   :align: center
 
 Start Photoshop or Premiere and click
 :menuselection:`Window --> Extensions --> ftrack`. This will open the ftrack
