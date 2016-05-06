@@ -8,3 +8,8 @@ Release Notes
 *************
 
 .. release:: Upcoming
+   
+    .. change:: new
+        :tags: Photoshop, Premiere PRO
+
+        Initial release of plugins for Photshop and Premeiere PRO
