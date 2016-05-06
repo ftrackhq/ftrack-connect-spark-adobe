@@ -5,8 +5,8 @@
 Using
 *****
 
-Note that these articles are generic and may look and work slightly different
-depending on which application you're using.
+These articles are describing generic workflows and may look and work slightly
+differently depending on which application you're using.
 
 .. toctree::
     :maxdepth: 1
