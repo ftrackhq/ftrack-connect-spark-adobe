@@ -8,6 +8,8 @@ Getting started
 Getting started with the Adobe plugins is really easy, just follow this guide
 and you will be up and running in no time.
 
+.. _getting_started/signup:
+
 1. Signup to ftrack (only for new users)
 ----------------------------------------
 
