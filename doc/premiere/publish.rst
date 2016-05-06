@@ -12,13 +12,8 @@ handed over to someone else or imported into another application such as
 Photoshop or After Effects.
 
 When publishing from Premiere Pro you can include the following:
+
 * The current project file.
 * A render of the current project.
 
 More information about publishing media can be found :ref:`here. <using/publish>`
-
-.. note::
-
-    Published files are tracked by ftrack and copied to a new place during
-    publish. Where files end up is fully configurable in
-    :ref:`ftrack <ftrack-connect:administering/configure_storage_scenario>`

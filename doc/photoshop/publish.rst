@@ -15,9 +15,3 @@ Publishing in Photoshop will publish the current document as a copy so
 that you can continue working on your local copy.
 
 More information about publishing media can be found :ref:`here. <using/publish>`
-
-.. note::
-
-    Published files are tracked by ftrack and copied to a new place during
-    publish. Where files end up is fully configurable in
-    :ref:`ftrack <ftrack-connect:administering/configure_storage_scenario>`
