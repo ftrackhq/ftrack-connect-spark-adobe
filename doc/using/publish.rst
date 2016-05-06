@@ -11,7 +11,7 @@ choose to publish it.
 Publishing something means that the material that you're working will be saved
 and published as a :term:`Version` to ftrack. In most cases this means that one
 or more files will be saved to disk or uploaded to ftrack where others can
-:ref:`import` and view them.
+:ref:`import <using/import>` and view them.
 
 .. figure:: /image/publish.png
    :scale: 90 %
