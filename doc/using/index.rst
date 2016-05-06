@@ -2,7 +2,7 @@
     :copyright: Copyright (c) 2016 ftrack
 
 *****
-Usage
+Using
 *****
 
 Note that these articles are generic and may look and work slightly different
