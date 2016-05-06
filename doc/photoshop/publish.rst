@@ -14,6 +14,8 @@ Premiere Pro or After Effects.
 Publishing in Photoshop will publish the current document as a copy so
 that you can continue working on your local copy.
 
+More information about publishing media can be found :ref:`here. <using/publish>`
+
 .. note::
 
     Published files are tracked by ftrack and copied to a new place during

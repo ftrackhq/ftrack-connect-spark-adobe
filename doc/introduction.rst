@@ -5,7 +5,7 @@
 Introduction
 ************
 
-The ftrack-connect-spark-adobe plugins act as a bridge between the Adobe
+The ftrack connect adobe plugins act as a bridge between the Adobe
 applications and ftrack. With the plugins into Premiere and Photoshop you can
 easily share you work with others for review, and publish and import your files
 to ftrack.
