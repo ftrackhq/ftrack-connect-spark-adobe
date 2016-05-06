@@ -10,9 +10,7 @@ applications and ftrack. With the plugins into Premiere and Photoshop you can
 easily share you work with others for review, and publish and import your files
 to ftrack.
 
-Read more about how to get started with the plugins `here`.
-
 .. note::
 
     For the plugins to work you will need to have an ftrack account. Read more
-    on how to get started `here`.
+    on how to get started :ref:`here <getting_started/signup>`.
