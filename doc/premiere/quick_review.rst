@@ -3,9 +3,9 @@
 
 .. _premiere/quick_review:
 
-*********************
-Share work for review
-*********************
+**************************
+Share your work for review
+**************************
 
 The quick review feature allows you to upload and send your latest video to
 collaborators or team members directly from within Premiere Pro.

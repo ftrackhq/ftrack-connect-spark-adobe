@@ -3,9 +3,9 @@
 
 .. _premiere/publish:
 
-************
-Publish work
-************
+*****************
+Publish your work
+*****************
 
 The publish feature lets you publish your work to ftrack so that it can be
 handed over to someone else or imported into another application such as
