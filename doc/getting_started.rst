@@ -12,13 +12,13 @@ and you will be up and running in no time.
 ----------------------------------------
 
 If you haven't already got an ftrack account you can sign up for a 30 day
-free trial at https://www.ftrack.com/signup
+free trial at our `Sign up page <https://www.ftrack.com/signup>`_. 
 
 2. Connect
 ----------
 
 Download and install ftrack Connect for your platform at
-https://www.ftrack.com/portfolio/connect.
+`Connect download page <https://www.ftrack.com/portfolio/connect>`_.
 
 Open Connect and sign in with your company's ftrack URL, e.g.
 <company-url>.ftrackapp.com.
@@ -27,18 +27,20 @@ Open Connect and sign in with your company's ftrack URL, e.g.
 
     If this is the first time you use ftrack and Connect you will be asked to
     configure a Storage scenario to let ftrack now how to publish your files.
-    See http://ftrack.rtd.ftrack.com/en/stable/administering/configure_storage_scenario.html
+    See
+    `this article <http://ftrack.rtd.ftrack.com/en/stable/administering/configure_storage_scenario.html>`_
     for more information.
 
 3. Adobe extension
 ------------------
 
-Download the Adobe extension from the Adobe app store. Search for ftrack and
-you will find it.
+Download the Adobe extension from the
+`ftrack Integrations page <https://www.ftrack.com/integrations>`_ and install
+it.
 
 Start Photoshop or Premiere and click
 :menuselection:`Window --> Extensions --> ftrack`. This will open the ftrack
-plugin Window. If Connect is running you should now be automatically
-connected to ftrack.
+window. If Connect is running you should now be automatically connected to
+ftrack.
 
 And that's it!
