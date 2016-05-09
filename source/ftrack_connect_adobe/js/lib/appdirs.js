@@ -44,9 +44,13 @@ function mkdirsSync(dirPath) {
     try {
         fs.mkdirSync(dirPath);
     } catch(e) {
-        if (e.code !== 'ENOENT') {
+        if (e.code === 'ENOENT') {
             // Recursively create parents, before creating self.
-            mkdirsSync(path.dirname(dirPath));
+            var parentDirectory = path.dirname(dirPath);
+            if (parentDirectory === dirPath) {
+                throw new Error('Failed to create directories');
+            }
+            mkdirsSync(parentDirectory);
             mkdirsSync(dirPath);
         } else if (e.code !== 'EEXIST') {
             throw e;
