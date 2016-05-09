@@ -7,10 +7,18 @@
 Release Notes
 *************
 
+.. release:: 0.1.1
+    :date: 2016-05-09
+   
+    .. change:: fixed
+        :tags: Premiere Pro, Windows
+
+        Unable to encode media when using Windows.
+
 .. release:: 0.1.0
     :date: 2016-05-09
    
     .. change:: new
         :tags: Photoshop, Premiere Pro
 
-        Initial release of plugins for Adobe Photshop and Adobe Premeiere Pro
+        Initial release of plugins for Adobe Photoshop and Adobe Premiere Pro

@@ -1,0 +1,1 @@
+- [fixed] Media encoding from Adobe Premiere Pro not working on Windows.
