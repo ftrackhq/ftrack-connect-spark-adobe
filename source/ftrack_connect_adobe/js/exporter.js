@@ -448,7 +448,10 @@ FT.exporter = (function(){
         steps.push(getDocumentName);
         steps.push(function (documentName, next) {
             logger.info('Document name', documentName);
-            result.name = documentName;
+            var fileExtension = path.extname(documentName);
+            var fileName = path.basename(documentName, fileExtension);
+
+            result.name = fileName;
             next(null, result);
         });
 
