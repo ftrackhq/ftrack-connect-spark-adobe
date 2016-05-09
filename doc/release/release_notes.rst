@@ -7,7 +7,8 @@
 Release Notes
 *************
 
-.. release:: Upcoming
+.. release:: 0.1.0
+    :date: 2016-05-09
    
     .. change:: new
         :tags: Photoshop, Premiere PRO
