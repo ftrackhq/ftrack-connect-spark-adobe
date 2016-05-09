@@ -31,10 +31,10 @@ var Logger = function () {
         humanReadableUnhandledException: true
     });
 
-    // Send all logs to console as well.
+    // Send all logs to browser console as well.
     logger.on('logging', function (transport, level, msg, meta) {
-        if (console[level]) {
-            console[level](msg, JSON.stringify(meta))
+        if (window && window.console && window.console[level]) {
+            window.console[level](msg, JSON.stringify(meta))
         }
     });
 
