@@ -3,7 +3,7 @@ window.FT = window.FT || {};
 
 /** Exporter */
 FT.main = (function(){
-    var logger = window.console;
+    var logger = require('./js/lib/logger');
     var initialized = false;
     var csInterface = window.csInterface;
 

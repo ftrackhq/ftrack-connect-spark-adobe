@@ -150,9 +150,10 @@ FTX.premiereExport = (function() {
     }
 
     /** On encoder job error, forward the event to CEF. */
-    function onEncoderJobError(jobId) {
+    function onEncoderJobError(jobId, message) {
         sendEvent('encoderJobError', {
-            jobId: jobId
+            jobId: jobId,
+            message: message,
         });
     }
 
