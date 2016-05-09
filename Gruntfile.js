@@ -6,9 +6,16 @@
 'use strict';
 
 module.exports = function (grunt) {
+    var options;
+    try {
+        options = require('./bundle/cep-config.js')
+    } catch (err) {
+        grunt.fail.fatal(err);
+    }
+
     grunt.initConfig({
         cep: {
-            options: require('./bundle/cep-config.js'),
+            options: options,
 
             build: {
                 options: {

@@ -12,6 +12,15 @@ var dependencies = project.cepDependencies.map(
     }
 );
 
+var certificatePassword = process.env.FTRACK_ADOBE_CERTIFICATE_PASSWORD;
+if (!certificatePassword || !certificatePassword.length) {
+    throw new Error(
+        'Certificate password not specified. ' +
+        'Please set the environment variable: ' +
+        'FTRACK_ADOBE_CERTIFICATE_PASSWORD'
+    );
+}
+
 var config =
 {
     bundle: {
@@ -21,14 +30,14 @@ var config =
         author_name: project.author,
         description: 'ftrack connect extension for Adobe Creative Cloud.',
         ui_access: 'You can run this extension by choosing<br><b>Window &gt; Extensions &gt; ftrack.</b>',
-        mxi_icon: 'build/staging/ftrack_connect_adobe/image/icon/icon_dark.png'
+        mxi_icon: 'source/ftrack_connect_adobe/image/icon/icon_dark.png'
     },
 
     extensions: [{
         version: project.version,
         id: 'com.ftrack.connect.adobe.panel',
         type: 'Panel',
-        name: 'ftrack [spark]',
+        name: 'ftrack',
         main_path: 'ftrack_connect_adobe/index.html',
         script_path: 'ftrack_connect_adobe/index.jsx',
         size: {
@@ -47,14 +56,14 @@ var config =
         },
         icons: {
             light: {
-                normal: 'build/staging/ftrack_connect_adobe/image/icon/icon_light.png',
-                hover: 'build/staging/ftrack_connect_adobe/image/icon/icon_light_hover.png',
-                disabled: 'build/staging/ftrack_connect_adobe/image/icon/icon_light_disabled.png'
+                normal: 'ftrack_connect_adobe/image/icon/icon_light.png',
+                hover: 'ftrack_connect_adobe/image/icon/icon_light_hover.png',
+                disabled: 'ftrack_connect_adobe/image/icon/icon_light_disabled.png'
             },
             dark: {
-                normal: 'build/staging/ftrack_connect_adobe/image/icon/icon_dark.png',
-                hover: 'build/staging/ftrack_connect_adobe/image/icon/icon_dark_hover.png',
-                disabled: 'build/staging/ftrack_connect_adobe/image/icon/icon_dark_disabled.png'
+                normal: 'ftrack_connect_adobe/image/icon/icon_dark.png',
+                hover: 'ftrack_connect_adobe/image/icon/icon_dark_hover.png',
+                disabled: 'ftrack_connect_adobe/image/icon/icon_dark_disabled.png'
             },
         },
         manifest: 'bundle/manifest.extension.xml',
@@ -62,16 +71,32 @@ var config =
 
     builds: [
         {
-            bundle: { manifest: 'bundle/manifest.bundle.cc2014.xml' },
+            bundle: { manifest: 'bundle/manifest.bundle.cc2015.xml' },
             extensions: [{ manifest: 'bundle/manifest.extension.xml' }],
-            products: ['photoshop', 'illustrator', 'indesign', 'flash', 'premiere', 'prelude', 'aftereffects', 'dreamweaver', 'incopy'],
+            products: [
+                'photoshop',
+                'illustrator',
+                'indesign',
+                'flash',
+                'premiere',
+                'prelude',
+                'aftereffects',
+                'dreamweaver',
+                'incopy'
+            ],
             source: 'build/staging',
-            families: ['CC2014', 'CC2015'],
+            families: ['CC2015'],
             dependencies: dependencies
         }
     ],
 
-    staging: 'build'
+    staging: 'build',
+
+    package: {
+        certificate: {
+            password: certificatePassword
+        }
+    }
 };
 
 

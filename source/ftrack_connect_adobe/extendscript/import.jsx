@@ -3,17 +3,10 @@
 FTX.import = (function(){
 
     /** Open document in *path* and store *encodedMetadata* in it. */
-    function openDocument(path, encodedMetadata) {
-        var appId = FTX.getAppId();
-
+    function openDocumentPhotoshop(path, encodedMetadata) {
         var importedDocument = app.open(new File(path));
-
-        // Open files in photoshop as a copy to ensure they are not overwritten
-        // by misstake if the users starts to edit them.
-        if (appId === 'PHSP' || appId === 'PHXS') {
-            importedDocument.duplicate();
-            importedDocument.close();
-        }
+        importedDocument.duplicate();
+        importedDocument.close();
 
         if (encodedMetadata) {
             try {
@@ -36,14 +29,27 @@ FTX.import = (function(){
         return false;
     }
 
+    /** Open *path* in after effects. */
+    function openDocumentAE(path) {
+        if (app.project) {
+            app.project.importFile(new ImportOptions(new File(path)));
+            return true;
+        }
+        return false;
+    }
+
     var methods = {
-        openDocument: openDocument
+        openDocument: null
     };
 
     var appId = FTX.getAppId();
 
     if (appId === 'PPRO') {
-        methods.openDocument = openDocumentPremiere
+        methods.openDocument = openDocumentPremiere;
+    } else if (appId === 'AEFT') {
+        methods.openDocument = openDocumentAE;
+    } else if (appId === 'PHSP' || appId === 'PHXS') {
+        methods.openDocument = openDocumentPhotoshop;
     }
 
     return methods;
