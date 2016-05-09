@@ -21,7 +21,11 @@ var Logger = function () {
     var logger = new (winston.Logger)({
         level: 'debug',
         transports: [
-            new (winston.transports.File)({ filename: filename, json: false })
+            new (winston.transports.File)({
+                filename: filename,
+                json: false,
+                options: {flags: 'w'}  // Overwrite previous log
+            })
         ],
         handleExceptions: true,
         humanReadableUnhandledException: true
