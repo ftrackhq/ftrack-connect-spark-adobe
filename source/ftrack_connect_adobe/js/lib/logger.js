@@ -9,7 +9,10 @@ var appdirs = require('./appdirs');
 
 
 /**
- * Return window.console wrapper.
+ * Return logger
+ *
+ * Logs using `winston` to file, and also forwards all logs to browser
+ * console.
  */
 var Logger = function () {
     var userDataDir = appdirs.getUserDataDir('ftrack-connect', 'ftrack');
