@@ -7,8 +7,8 @@
 Quick review
 ************
 
-With quick review it is easy to share your material with others, to keep them
-up-to-date and get feedback on your work.
+With quick review it is easy to share your work with collaborators and external
+clients, to keep them up-to-date and get feedback on your work.
 
 .. figure:: /image/quick_review.png
    :scale: 90 %
@@ -20,5 +20,5 @@ link to the review page.
 
 From the review page collaborators will be able to reivew what you've shared,
 add feedback by drawing annotations or writing notes. When feedback has been
-added notifications, are sent out via email to all collaborators to make sure
+added notifications are sent out via email to all collaborators to make sure
 nothing is missed.
