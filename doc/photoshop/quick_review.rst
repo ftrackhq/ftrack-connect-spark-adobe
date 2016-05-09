@@ -7,12 +7,12 @@
 Share your work for review
 **************************
 
-The quick review feature allows you to upload and send your latest image to
+The quick review feature allows you to upload and send your latest document to
 collaborators or team members directly from within Photoshop.
 
-ftrack will automatically upload the image and notify the
-collaborators via email while you can continue working on your project. When
-feedback arrive you will be notified via email.
+ftrack will automatically export your document as a JPEG image, upload it and
+notify the collaborators via email while you can continue working on your
+project. When feedback arrive you will be notified via email.
 
 Choose quick review in the share menu, select your project and add
 collaborators. Then hit share to send out an email to the collaborators with a

@@ -8,9 +8,8 @@ Feedback
 Communication and feedback is an important part of the day-to-day work. From the
 plugin you have easy access to all your notes.
 
-To read notes on your tasks, head over to :ref:`My tasks <using/my_tasks>` and
-click on the Notes tab. You can also browse other parts of the project to read
-and reply to notes.
+To read notes on your tasks, select a task from :ref:`My tasks <using/my_tasks>`.
+You can also browse other parts of the project to read and reply to notes.
 
 .. figure:: /image/notes.png
    :scale: 90 %
@@ -18,5 +17,5 @@ and reply to notes.
 
    On the notes page you can communicte with your fellow colleagues using Notes.
 
-To learn on how to share your work with others, please see the
-:ref:`using/quick_review` article.
+To learn on how to share your work with collaborators and external clients,
+please see the :ref:`using/quick_review` article.

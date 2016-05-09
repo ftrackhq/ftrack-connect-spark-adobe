@@ -11,6 +11,6 @@ Release Notes
     :date: 2016-05-09
    
     .. change:: new
-        :tags: Photoshop, Premiere PRO
+        :tags: Photoshop, Premiere Pro
 
-        Initial release of plugins for Photshop and Premeiere PRO
+        Initial release of plugins for Adobe Photshop and Adobe Premeiere Pro

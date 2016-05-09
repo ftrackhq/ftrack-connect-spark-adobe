@@ -14,6 +14,7 @@ Photoshop or After Effects.
 When publishing from Premiere Pro you can include the following:
 
 * The current project file.
-* A render of the current project.
+* An encoded export of the active sequence.
+* A capture of the current frame, which is used as a thumbnail.
 
 More information about publishing media can be found :ref:`here. <using/publish>`
