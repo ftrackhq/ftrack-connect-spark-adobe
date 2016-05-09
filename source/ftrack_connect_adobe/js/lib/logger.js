@@ -15,19 +15,25 @@ var appdirs = require('./appdirs');
  * console.
  */
 var Logger = function () {
+    var csInterface = window.csInterface;
+    var hostEnvironment = csInterface && csInterface.getHostEnvironment() || {};
+    var appId = hostEnvironment.appId || 'unknown';
+
     var userDataDir = appdirs.getUserDataDir('ftrack-connect', 'ftrack');
     var logDirectory = path.join(userDataDir, 'log');
     appdirs.mkdirsSync(logDirectory);
 
-    var filename = path.join(logDirectory, 'ftrack_connect_spark_adobe.log');
+    var filename = path.join(
+        logDirectory,
+        'ftrack_connect_spark_adobe_' + appId.toLowerCase() + '.log'
+    );
 
     var logger = new (winston.Logger)({
         level: 'debug',
         transports: [
             new (winston.transports.File)({
                 filename: filename,
-                json: false,
-                options: {flags: 'w'}  // Overwrite previous log
+                json: false
             })
         ],
         handleExceptions: true,
