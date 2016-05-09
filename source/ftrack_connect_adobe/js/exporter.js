@@ -6,7 +6,7 @@ FT.exporter = (function(){
     var fs = require('fs');
     var tmp = require('tmp');
     var async = require('async');
-    var logger = window.console;
+    var logger = require('./js/lib/logger');
     var csInterface = window.top.csInterface;
     var APP_ID = csInterface.getHostEnvironment().appId;
 
@@ -37,6 +37,11 @@ FT.exporter = (function(){
     }
 
 
+    function sanitizeFilenameForEvalScript(filePath) {
+        return filePath.replace(new RegExp('\\\\', 'g'), '\\\\');
+    }
+
+
     /** Create a temporary directory and call *next* with the result. */
     function getTemporaryDirectory(next) {
         tmp.dir(function (err, directoryPath, cleanupCallback) {
@@ -44,7 +49,7 @@ FT.exporter = (function(){
                 next(err);
             }
             directoryPath += path.sep;
-            directoryPath = directoryPath.replace(new RegExp('\\\\', 'g'), '\\\\');
+            directoryPath = sanitizeFilenameForEvalScript(directoryPath);
             next(null, directoryPath);
         });
     }
@@ -104,8 +109,11 @@ FT.exporter = (function(){
         var autoStart = options.autoStart || false;
 
         logger.debug(
-            'Rendering sequence using options', directoryPath, sourceRange,
-            autoStart
+            'Rendering sequence using options', {
+                directoryPath: directoryPath,
+                sourceRange: sourceRange,
+                autoStart: autoStart,
+            }
         );
 
         var preset = path.join(
@@ -114,7 +122,8 @@ FT.exporter = (function(){
             'resource',
             'ftrack.epr'
         );
-        logger.log('Using preset', preset);
+        preset = sanitizeFilenameForEvalScript(preset);
+        logger.debug('Using preset', preset);
 
         var extendScript = [
             'FTX.premiereExport.renderActiveSequence(',
@@ -124,6 +133,8 @@ FT.exporter = (function(){
             autoStart,
             ')'
         ].join('');
+        logger.debug('Evaluating extendscript', extendScript);
+
         csInterface.evalScript(extendScript, function (jobId) {
             next(null, jobId);
         });
@@ -142,9 +153,13 @@ FT.exporter = (function(){
 
         csInterface.addEventListener(
             'encoderJobError', function (event) {
-                logger.error('Encoder job failed', event.data.jobId);
+                logger.error('Encoder job failed', event.data);
                 if (event.data.jobId === options.jobId) {
-                    next(new Error('Encoding job failed'));
+                    var errorMessage = 'Encoding job failed';
+                    if (event.data.message) {
+                        errorMessage += ' (' + event.data.message + ')';
+                    }
+                    next(new Error(errorMessage));
                 }
             }.bind(this)
         );
@@ -194,6 +209,15 @@ FT.exporter = (function(){
         });
     }
 
+    function logStep(stepName) {
+        return function () {
+            var args = Array.prototype.slice.call(arguments);
+            var next = args.pop();
+            args.unshift(null);
+            next.apply(null, args);
+        }
+    }
+
     /**
      * Export media and call callback with error and array of formatted files.
      *
@@ -209,11 +233,11 @@ FT.exporter = (function(){
         var steps = [];
         var temporaryDirectory;
         var exportedFiles = [];
-
         steps.push(verifyExport);
+        steps.push(logStep('Verify export'));
         steps.push(getTemporaryDirectory);
+        steps.push(logStep('Generated temporary directory'));
         steps.push(function (directoryPath, next) {
-            logger.debug('Generated temporary directory.');
             temporaryDirectory = directoryPath;
             next(null, temporaryDirectory);
         });
@@ -221,8 +245,8 @@ FT.exporter = (function(){
         // Validate that an active sequence exists or the rest of the export
         // will fail.
         if (APP_ID === 'PPRO') {
+            steps.push(logStep('Checking for active sequence'));
             steps.push(function (directoryPath, next) {
-                logger.debug('Checking for active sequence.');
                 var extendScript = "FTX.premiereExport.hasActiveSequence()";
                 csInterface.evalScript(extendScript, function (active) {
                     if (active === 'true') {
@@ -235,7 +259,7 @@ FT.exporter = (function(){
         }
 
         if (options.thumbnail && APP_ID === 'PPRO') {
-            logger.debug('Including thumbnail in export.');
+            steps.push(logStep('Getting thumbnail'));
             steps.push(getThumbnail);
             steps.push(function (thumbnailPath, next) {
                 logger.debug('Exported thumbnail', thumbnailPath);
@@ -305,6 +329,7 @@ FT.exporter = (function(){
                         autoStart: autoStartEncoding
                     }, next);
                 },
+                logStep('Render active sequence'),
                 verifyReturnedValue,
                 function (jobId, next) {
                     setupEncodingListeners(
@@ -312,6 +337,7 @@ FT.exporter = (function(){
                         next
                     );
                 },
+                logStep('Setup encoding listeners'),
                 function (encodedMediaPath, next) {
                     logger.debug('Exported rendered sequence', encodedMediaPath);
 
@@ -341,6 +367,7 @@ FT.exporter = (function(){
         if (options.review && (APP_ID === 'PHSP' || APP_ID === 'PHXS')) {
             logger.debug('Including reviewable media');
             steps.push(saveJpeg, verifyReturnedValue);
+            steps.push(logStep('Saved JPEG'));
             steps.push(function (filePath, next) {
                 exportedFiles.push({ path: filePath, use: 'image-review' });
                 next(null, temporaryDirectory);
@@ -349,7 +376,11 @@ FT.exporter = (function(){
 
         if (options.delivery && (APP_ID === 'PHSP' || APP_ID === 'PHXS')) {
             logger.debug('Including deliverable media');
-            steps.push(saveDocument, verifyReturnedValue);
+            steps.push(
+                saveDocument,
+                logStep('Saved document'),
+                verifyReturnedValue
+            );
             steps.push(function (filePath, next) {
                 exportedFiles.push(
                     { path: filePath, name: 'photoshop-document', use: 'delivery' }
@@ -417,7 +448,10 @@ FT.exporter = (function(){
         steps.push(getDocumentName);
         steps.push(function (documentName, next) {
             logger.info('Document name', documentName);
-            result.name = documentName;
+            var fileExtension = path.extname(documentName);
+            var fileName = path.basename(documentName, fileExtension);
+
+            result.name = fileName;
             next(null, result);
         });
 

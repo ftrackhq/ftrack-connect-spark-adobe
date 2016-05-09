@@ -2,52 +2,17 @@ window.FT = window.FT || {};
 
 /** Util */
 FT.util = (function(){
-    var logger = window.console;
-    var path = require('path'),
-        os = require('os'),
-        fs = require('fs');
-
-    /** Return data dir on OSX. */
-    function darwinUserDataDir (appname) {
-        var dir = path.join(
-            process.env.HOME, 'Library/Application Support', appname
-        );
-
-        return dir;
-    }
-
-    /** Return data dir on windows. */
-    function windowsUserDataDir (appname, appauthor) {
-        var dir = process.env.LOCALAPPDATA;
-
-        if (appauthor) {
-            dir = path.join(dir, appauthor, appname);
-        } else {
-            dir = path.join(dir, appname)
-        }
-
-        return dir;
-    }
-
-    /** Return user data folder based on current platform. */
-    function getUserDataDir(appname, appauthor) {
-        logger.debug('Getting user data dir for platform', os.platform());
-        switch (os.platform()) {
-            case 'win32':
-                return windowsUserDataDir(appname, appauthor);
-            case 'darwin':
-                return darwinUserDataDir(appname);
-            default:
-                return null;
-        }
-    }
+    var logger = require('./js/lib/logger');
+    var appdirs = require('./js/lib/appdirs');
+    var path = require('path');
+    var fs = require('fs');
 
     /**
      * Return API credentials using *callback*.
      */
     function getCredentials(callback) {
         var config,
-            dataDir = getUserDataDir('ftrack-connect', 'ftrack'),
+            dataDir = appdirs.getUserDataDir('ftrack-connect', 'ftrack'),
             file = path.join(dataDir, 'config.json'),
             data,
             jsonData;
@@ -103,20 +68,14 @@ FT.util = (function(){
 
     /** Write *filename* to ftrack-connect/data with *data*. */
     function writeSecurePublishFile(filename, data, callback) {
-        var folder = getUserDataDir('ftrack-connect/data', 'ftrack'),
+        var folder = appdirs.getUserDataDir('ftrack-connect/data', 'ftrack'),
             result = path.join(folder, filename);
 
         try {
-            // Check if the folder exists.
-            var stat = fs.statSync(folder);
+            appdirs.mkdirsSync(folder);
         } catch (error) {
-            logger.debug('Creating data folder.');
-            try {
-                fs.mkdirSync(folder);
-            } catch (error) {
-                callback(error, null);
-                return;
-            }
+            callback(error, null);
+            return;
         }
 
         fs.writeFile(result, JSON.stringify(data), function (error) {
@@ -128,6 +87,7 @@ FT.util = (function(){
     }
 
     return {
+        logger: logger,
         getResolverPlatfom: getResolverPlatfom,
         getCredentials: getCredentials,
         writeSecurePublishFile: writeSecurePublishFile

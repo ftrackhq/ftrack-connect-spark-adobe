@@ -31,10 +31,19 @@
   "//": "ftrack-connect-spark should be installed via `npm link ftrack-connect-spark` for now.",
   "dependencies": {
     "async": "^1.5.2",
-    "tmp": "0.0.24"
+    "tmp": "0.0.24",
+    "winston": "2.2.0"
   },
   "cepDependencies": [
     "async",
-    "tmp"
+    "tmp",
+    "winston",
+    "isstream",
+    "colors",
+    "cycle",
+    "eyes",
+    "isstream",
+    "pkginfo",
+    "stack-trace"
   ]
 }

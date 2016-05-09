@@ -3,7 +3,7 @@ window.FT = window.FT || {};
 
 /** Exporter */
 FT.import = (function(){
-    var logger = window.console;
+    var logger = require('./js/lib/logger');
     var csInterface = window.top.csInterface;
 
     function openDocument(path, metadata, next) {
