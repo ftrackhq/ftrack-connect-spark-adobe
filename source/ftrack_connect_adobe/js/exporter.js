@@ -43,7 +43,9 @@ FT.exporter = (function(){
 
 
     /** Create a temporary directory and call *next* with the result. */
-    function getTemporaryDirectory(next) {
+    function getTemporaryDirectory() {
+        var args = Array.prototype.slice.call(arguments);
+        var next = args.pop();
         tmp.dir(function (err, directoryPath, cleanupCallback) {
             if (err) {
                 next(err);
@@ -200,11 +202,38 @@ FT.exporter = (function(){
         });
     }
 
+    function getAfterEffectsThumbnail(directoryPath, composition, next) {
+        logger.log('Getting thumbnail');
+        var extendScript = "FTX.afterEffectsExport.saveActiveFrame('" + directoryPath + "','" + composition + "')";
+        csInterface.evalScript(extendScript, function (thumbnailPath) {
+            logger.debug('Received thumbnail:', thumbnailPath);
+            next(null, thumbnailPath);
+        });
+    }
+
     function savePremiereProject(directoryPath, next) {
         logger.log('Saving premiere project');
         var extendScript = "FTX.premiereExport.saveProject('" + directoryPath + "')";
         csInterface.evalScript(extendScript, function (projectFilePath) {
             logger.debug('Saved premiere project:', projectFilePath);
+            next(null, projectFilePath);
+        });
+    }
+
+    function saveAfterEffectsProject(directoryPath, next) {
+        logger.log('Saving after effects project');
+        var extendScript = "FTX.afterEffectsExport.saveProject('" + directoryPath + "')";
+        csInterface.evalScript(extendScript, function (projectFilePath) {
+            logger.debug('Saved after effects project:', projectFilePath);
+            next(null, projectFilePath);
+        });
+    }
+
+    function renderAfterEffectsComposition(options, next) {
+        logger.log('Rendering composition:', options);
+        var extendScript = "FTX.afterEffectsExport.renderComposition('" + options.directoryPath + "', '" + options.compositionName + "', '" + options.outputModule + "', '" + options.renderSetting + "')";
+        csInterface.evalScript(extendScript, function (projectFilePath) {
+            logger.debug('Rendered composition:', projectFilePath);
             next(null, projectFilePath);
         });
     }
@@ -216,6 +245,55 @@ FT.exporter = (function(){
             args.unshift(null);
             next.apply(null, args);
         }
+    }
+
+    /** Detect and return a file name from a *directory*. */
+    function _detectSequence(directory) {
+        if (!fs.statSync(directory).isDirectory()) {
+            throw new Error('Failed to obtain path to rendered composition.');
+        }
+        var files = fs.readdirSync(directory);
+        if (files.length === 0) {
+            throw Error('Failed to detect output from composition render.');
+        }
+        var filePath = path.join(directory, files[0]);
+
+        // Only one file, remove frame number placeholder.
+        if (files.length === 1) {
+            var newFilePath = filePath.replace(/_\[[#]+\]/, '');
+            fs.renameSync(filePath, newFilePath);
+            filePath = newFilePath;
+        }
+        // More than one file, assume sequence
+        else {
+            // Assume first frame is 0
+            var lastFrame = files.length - 1;
+
+            var extension = path.extname(filePath);
+            var basename = path.basename(filePath, extension);
+
+            // Assume frame numbers are at end of basename, 
+            // e.g. comp_00000.tif
+            var fileNumberMatches = basename.match(/\d+$/) || [''];
+            var firstFrame = fileNumberMatches[0];
+            var padding = firstFrame.length;
+
+            // Remove frame number from basename
+            basename = basename.replace(firstFrame, '');
+
+            // Format path in a clique-compatible format, e.g.
+            // basename%05d.ext [0, 100]
+            var pattern = util.format(
+                '%s%%0%dd%s [0-%d]',
+                basename,
+                padding,
+                extension,
+                lastFrame
+            );
+            filePath = path.join(directory, pattern);
+        }
+
+        return filePath;
     }
 
     /**
@@ -258,6 +336,22 @@ FT.exporter = (function(){
             });
         }
 
+        // Validate that an active sequence exists or the rest of the export
+        // will fail.
+        if (APP_ID === 'AEFT') {
+            steps.push(logStep('Checking for active project'));
+            steps.push(function (directoryPath, next) {
+                var extendScript = "FTX.afterEffectsExport.hasActiveProject()";
+                csInterface.evalScript(extendScript, function (active) {
+                    if (active === 'true') {
+                        next(null, directoryPath);
+                    } else {
+                        next(new Error('No active project found.'));
+                    }
+                });
+            });
+        }
+
         if (options.thumbnail && APP_ID === 'PPRO') {
             steps.push(logStep('Getting thumbnail'));
             steps.push(getThumbnail);
@@ -269,6 +363,33 @@ FT.exporter = (function(){
                     use: 'thumbnail'
                 });
                 next(null, temporaryDirectory);
+            });
+        }
+
+        if (options.thumbnail && APP_ID === 'AEFT') {
+            steps.push(logStep('Getting thumbnail'));
+            if (options.showProgress) {
+                options.showProgress({
+                    header: 'Generating thumbnail',
+                    message: 'Generating thumbnail.'
+                });
+            }
+            steps.push(function (result, next) {
+                getAfterEffectsThumbnail(temporaryDirectory, options.composition, next);
+            });
+            steps.push(function (thumbnailPath, next) {
+                logger.debug('Exported thumbnail', thumbnailPath);
+                exportedFiles.push({
+                    path: thumbnailPath,
+                    name: 'thumbnail',
+                    use: 'thumbnail'
+                });
+
+                // Wait for thumbnail to be written since it is async.
+                // TODO: Change this to checking if the file is closed.
+                setTimeout(function(){
+                    next(null, temporaryDirectory);
+                }, 2000);
             });
         }
 
@@ -284,6 +405,52 @@ FT.exporter = (function(){
                 });
                 next(null, temporaryDirectory);
             });
+        }
+
+        if (options.project_file && APP_ID === 'AEFT') {
+            logger.debug('Including project file in export.');
+            steps.push(saveAfterEffectsProject);
+            steps.push(function (projectPath, next) {
+                logger.debug('Exported project file', projectPath);
+                exportedFiles.push({
+                    path: projectPath,
+                    name: 'after-effects-project',
+                    use: 'project_file'
+                });
+                next(null, temporaryDirectory);
+            });
+        }
+
+        if (options.render_composition && APP_ID === 'AEFT') {
+            logger.info('Rendering composition to include in export.');
+            if (options.showProgress) {
+                options.showProgress({
+                    header: 'Rendering composition',
+                    message: 'Once rendering has completed the process will continue.'
+                });
+            }
+            steps.push(
+                getTemporaryDirectory,
+                function (temporaryDirectory, next) {
+                    renderAfterEffectsComposition({
+                        directoryPath: temporaryDirectory,
+                        renderSetting: options.render_setting,
+                        compositionName: options.composition,
+                        outputModule: options.output_module
+                    }, next);
+                },
+                logStep('Rendered composition.'),
+                verifyReturnedValue,
+                function (renderedCompositionPath, next) {
+                    logger.info('Rendered composition.', renderedCompositionPath);
+                    exportedFiles.push({
+                        path: _detectSequence(renderedCompositionPath),
+                        name: 'main',
+                        use: 'rendered_sequence'
+                    });
+                    next(null, temporaryDirectory);
+                }
+            );
         }
 
         if ((options.review || options.rendered_sequence) && APP_ID === 'PPRO') {
@@ -432,9 +599,20 @@ FT.exporter = (function(){
         var extendScript = 'FTX.export.getDocumentName()';
         if (APP_ID === 'PPRO') {
             extendScript = 'FTX.premiereExport.getProjectName()';
+        } else if (APP_ID === 'AEFT') {
+            extendScript = 'FTX.afterEffectsExport.getProjectName()';
         }
         csInterface.evalScript(extendScript, function (documentName) {
             verifyReturnedValue(documentName, next);
+        });
+    }
+
+    function getExportSettingOptions(value, next) {
+        logger.info('Collecting export options.');
+        var extendScript = 'FTX.afterEffectsExport.getExportSettingOptions()';
+        csInterface.evalScript(extendScript, function (options) {
+            logger.info(options);
+            verifyReturnedValue(options, next);
         });
     }
 
@@ -454,6 +632,14 @@ FT.exporter = (function(){
             result.name = fileName;
             next(null, result);
         });
+
+        if (APP_ID === 'AEFT') {
+            steps.push(getExportSettingOptions);
+            steps.push(function (exportOptions, next) {
+                result.exportOptions = JSON.parse(exportOptions);
+                next(null, result);
+            });
+        }
 
         if (options.metadata) {
             steps.push(function (result, next) {
