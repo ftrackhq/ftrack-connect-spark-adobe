@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: 0.1.2
+    :date: 2016-05-16
+
+    .. change:: fixed
+
+        Scrolling in views not working properly.
+
 .. release:: 0.1.1
     :date: 2016-05-09
    
