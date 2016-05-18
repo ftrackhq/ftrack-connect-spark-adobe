@@ -346,7 +346,11 @@ FT.exporter = (function(){
                     if (active === 'true') {
                         next(null, directoryPath);
                     } else {
-                        next(new Error('No active project found.'));
+                        next(
+                            new Error(
+                                'No active project found. Please save your project file.'
+                            )
+                        );
                     }
                 });
             });
