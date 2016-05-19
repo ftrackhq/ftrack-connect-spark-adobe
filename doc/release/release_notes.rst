@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: Upcoming
+
+    .. change:: new
+        :tags: After Effects
+
+        Added support for publishing from After Effects.
+
 .. release:: 0.1.2
     :date: 2016-05-16
 

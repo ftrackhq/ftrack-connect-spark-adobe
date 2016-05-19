@@ -278,3 +278,158 @@ FTX.premiereExport = (function() {
         hasActiveSequence: hasActiveSequence
     };
 }());
+
+
+FTX.afterEffectsExport = (function() {
+
+    /** Return project name */
+    function getProjectName() {
+        return app && app.project && app.project.file && app.project.file.name || 'Untitled Project';
+    }
+
+    /** Return if has an active and saved project. */
+    function hasActiveProject() {
+        return !!(
+            app && app.project && app.project.file && app.project.file.fsName
+        );
+    }
+
+    /** 
+     * Save project as a file in *directory*. 
+     *
+     * *directory* should end with a separator.
+     */
+    function saveProject(directory) {
+        var originalPath = app.project.file.fsName;
+
+        var projectName = FTX.export.sanitizeFileName(app.project.file.name || 'project.aeproj');
+        var filePath = directory + projectName;
+        app.project.save(new File(filePath));
+
+        // Save in original path to reset working project.
+        app.project.save(new File(originalPath));
+
+        return filePath;
+    }
+
+    /** 
+     * Return all composition names in current project.
+     */
+    function getCompositionNames() {
+        var compositionNames = [];
+        if (!app.project) {
+            return compositionNames;
+        }
+
+        for(var i = 1; i <= app.project.numItems; i += 1) {
+            var item = app.project.item(i);
+            if (item instanceof CompItem) {
+                 compositionNames.push(item.name);
+            }
+        }
+
+        return compositionNames;
+    }
+
+    /** 
+     * Return first composition in project named *compositionName*
+     *
+     * If *compositionName* is not specified, return first composition.
+     * Returns null if no matching composition is found.
+     */
+    function getFirstComposition(compositionName) {
+        for(var i = 1; i <= app.project.numItems; i += 1) {
+            var item = app.project.item(i);
+            if (item instanceof CompItem) {
+                if (!compositionName) {
+                    return item;
+                }
+                else if (item.name === compositionName) {
+                    return item;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /** 
+     * Save the currently active frame as an PNG in *directory*.
+     */
+    function saveActiveFrame(directory, compositionName) {
+        var composition = getFirstComposition(compositionName);
+        if (!composition) {
+            throw new Error('Unable to retrieve composition.');
+        }
+        compositionName = FTX.export.sanitizeFileName(composition.name) || 'composition';
+        var filePath = directory + compositionName + '.png';
+
+        // NOTE: This call is likely async.
+        composition.saveFrameToPng(composition.time, new File(filePath));
+
+        return filePath;
+    }
+
+    /**
+     * Render composition, and return the resulting path.
+     */
+    function renderComposition(directory, compositionName, outputModule, renderSettings) {
+        var composition = getFirstComposition(compositionName);
+        if (!composition) {
+            throw new Error('Unable to retrieve composition.');
+        }
+        compositionName = FTX.export.sanitizeFileName(composition.name) || 'composition';
+        var filePath = directory + compositionName + '_[#####]';
+
+        var renderQueue = app.project.renderQueue;
+        var item = renderQueue.items.add(composition);
+        item.outputModule(1).applyTemplate(outputModule);
+        item.outputModule(1).file = new File(filePath);
+        item.applyTemplate(renderSettings);
+
+        // Render queue, blocks until completed.
+        renderQueue.render();
+
+        return directory;
+    }
+
+    /** 
+     * Return JSON-encoded object with export settings.
+     *
+     * Fetches output modules and render settings by creating a temporary
+     * composition and render queue item, reading the template names and then 
+     * removing the temporary items.
+     */
+    function getExportSettingOptions() {
+        var compositionNames = [];
+        var renderSettings = [];
+        var outputModules = [];
+
+        if (app.project) {
+            compositionNames = getCompositionNames();
+            var composition = app.project.items.addComp('ftrack-connect-temporary-comp', 100, 100, 1, 1, 25);
+            var renderQueue = app.project.renderQueue;
+            var renderQueueItem = renderQueue.items.add(composition);
+            renderSettings = renderQueueItem.templates;
+            outputModules = renderQueueItem.outputModules[1].templates;
+
+            renderQueueItem.remove();
+            composition.remove();
+        }
+
+        return JSON.stringify({
+            compositionNames: compositionNames,
+            renderSettings: renderSettings,
+            outputModules: outputModules
+        });
+    }
+
+    return {
+        getExportSettingOptions: getExportSettingOptions,
+        renderComposition: renderComposition,
+        saveActiveFrame: saveActiveFrame,
+        saveProject: saveProject,
+        hasActiveProject: hasActiveProject,
+        getProjectName: getProjectName
+    };
+}());
