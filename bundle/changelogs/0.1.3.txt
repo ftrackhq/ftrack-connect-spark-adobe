@@ -1,0 +1,2 @@
+- [new] Added support for publishing from After Effects.
+- [changed] Improved permission handling.

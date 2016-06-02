@@ -1,0 +1,1 @@
+- [fixed] Scrolling in views not working properly.
