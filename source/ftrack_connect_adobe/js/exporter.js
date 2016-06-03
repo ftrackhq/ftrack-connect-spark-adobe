@@ -3,6 +3,7 @@ window.FT = window.FT || {};
 /** Exporter */
 FT.exporter = (function(){
     var path = require('path');
+    var util = require('util');
     var fs = require('fs');
     var tmp = require('tmp');
     var async = require('async');
@@ -86,7 +87,16 @@ FT.exporter = (function(){
             media.forEach(function (file) {
                 var fileExtension = path.extname(file.path);
                 var fileName = file.name || path.basename(file.path, fileExtension);
-                var fileSize = fs.statSync(file.path).size;
+                var fileSize = null;
+                try {
+                    fileSize = fs.statSync(file.path).size;
+                } catch (error) {
+                    logger.debug(
+                        'File stat failed, the path is probably an image sequence.',
+                        error
+                    );
+                }
+
                 result.push({
                     use: file.use,
                     path: file.path,
