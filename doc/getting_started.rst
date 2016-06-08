@@ -48,3 +48,10 @@ and pressing the *Free* button to install.
 
     You can also install the extension manually using ZXP installer:
     :ref:`manual_installation`.
+
+Start an Adobe CC application and click
+:menuselection:`Window --> Extensions --> ftrack`. This will open the ftrack
+panel. If Connect is running you should now be automatically connected to
+ftrack.
+
+And that's it!
