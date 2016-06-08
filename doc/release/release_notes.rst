@@ -8,7 +8,7 @@ Release Notes
 *************
 
 .. release:: 0.1.3
-    :date: 2016-06-02
+    :date: 2016-06-08
 
     .. change:: new
         :tags: After Effects
@@ -18,6 +18,14 @@ Release Notes
     .. change:: changed
 
         Improved permission handling.
+
+    .. change:: fixed
+
+        Poor feedback when authentication fails or Connect is missing.
+
+    .. change:: fixed
+
+        Duplicate scrollbars sometime appears.
 
 .. release:: 0.1.2
     :date: 2016-05-16
