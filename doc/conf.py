@@ -92,7 +92,7 @@ def autodoc_skip(app, what, name, obj, skip, options):
 intersphinx_mapping = {
     'python': ('http://docs.python.org/', None),
     'ftrack': (
-        'http://rtd.ftrack.com/docs/ftrack-connect/en/stable/', None
+        'http://ftrack.rtd.ftrack.com/en/stable/', None
     )
 }
 

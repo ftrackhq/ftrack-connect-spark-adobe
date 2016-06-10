@@ -5,8 +5,8 @@
 Getting started
 ***************
 
-Getting started with the Adobe plugins is really easy, just follow this guide
-and you will be up and running in no time.
+Getting started with the Adobe integration is really easy, just follow this
+guide and you will be up and running in no time.
 
 .. _getting_started/signup:
 
@@ -29,25 +29,29 @@ Open Connect and sign in with your company's ftrack URL, e.g.
 
     If this is the first time you use ftrack and Connect you will be asked to
     configure a Storage scenario to let ftrack now how to publish your files.
-    See
-    `this article <http://ftrack.rtd.ftrack.com/en/stable/administering/configure_storage_scenario.html>`_
-    for more information.
+    See :ref:`ftrack:administering/configure_storage_scenario` for more
+    information.
+
+.. _getting_started/adobe_extension:
 
 3. Adobe extension
 ------------------
 
-Download the Adobe extension from the
-`ftrack Integrations page <https://www.ftrack.com/integrations>`_. Open ZXP
-Installer, locate the downloaded ZXP file and install it by dropping it on ZXP
-Installer.
+Install the extension from :term:`Adobe Add-ons` by searching for *ftrack* or 
+navigating to `the ftrack extension <https://creative.adobe.com/addons/products/15269>`_
+and pressing the *Free* button to install.
 
 .. figure:: /image/install_extension.png
-   :scale: 90 %
    :align: center
 
-Start Photoshop or Premiere and click
+.. seealso:: 
+
+    You can also install the extension manually using ZXP installer:
+    :ref:`manual_installation`.
+
+Start an Adobe CC application and click
 :menuselection:`Window --> Extensions --> ftrack`. This will open the ftrack
-window. If Connect is running you should now be automatically connected to
+panel. If Connect is running you should now be automatically connected to
 ftrack.
 
 And that's it!
