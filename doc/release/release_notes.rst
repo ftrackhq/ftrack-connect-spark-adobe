@@ -7,6 +7,14 @@
 Release Notes
 *************
 
+.. release:: 0.1.4
+    :date: 2016-06-22
+
+    .. change:: changed
+        :tags: Photoshop, Premiere Pro
+
+        Added support for Photoshop CC 2015.5 and Premiere Pro CC 2015.3.
+
 .. release:: 0.1.3
     :date: 2016-06-08
 

@@ -1,0 +1,1 @@
+- [changed] Added support for Photoshop CC 2015.5, Premiere CC 2015.3
