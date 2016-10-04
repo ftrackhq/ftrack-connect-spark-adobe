@@ -6,6 +6,7 @@ FT.uploader = (function(){
     var http = require('http');
     var https = require('https');
     var url = require('url');
+    var logger = require('./js/lib/logger');
 
     /** 
      * Upload filePath to *uploadUrl* using *headers*.
@@ -13,6 +14,9 @@ FT.uploader = (function(){
      * Call *callback* with error and response text.
      */
     function uploadFile(filePath, uploadUrl, headers, callback) {
+        logger.log(
+            'Uploading file to URL using headers', filePath, uploadUrl, headers
+        );
         var urlParts = url.parse(uploadUrl);
         var httpModule = urlParts.protocol === 'http:' ? http : https;
         var stream = fs.createReadStream(filePath);
