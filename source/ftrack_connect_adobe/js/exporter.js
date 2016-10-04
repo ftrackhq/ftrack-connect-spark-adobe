@@ -8,6 +8,7 @@ FT.exporter = (function(){
     var tmp = require('tmp');
     var async = require('async');
     var logger = require('./js/lib/logger');
+    var sanitizeFilename = require('./js/lib/sanitize_filename');
     var csInterface = window.top.csInterface;
     var APP_ID = csInterface.getHostEnvironment().appId;
 
@@ -37,12 +38,6 @@ FT.exporter = (function(){
         }
     }
 
-
-    function sanitizeFilenameForEvalScript(filePath) {
-        return filePath.replace(new RegExp('\\\\', 'g'), '\\\\');
-    }
-
-
     /** Create a temporary directory and call *next* with the result. */
     function getTemporaryDirectory() {
         var args = Array.prototype.slice.call(arguments);
@@ -52,7 +47,7 @@ FT.exporter = (function(){
                 next(err);
             }
             directoryPath += path.sep;
-            directoryPath = sanitizeFilenameForEvalScript(directoryPath);
+            directoryPath = sanitizeFilename(directoryPath);
             next(null, directoryPath);
         });
     }
@@ -134,7 +129,7 @@ FT.exporter = (function(){
             'resource',
             'ftrack.epr'
         );
-        preset = sanitizeFilenameForEvalScript(preset);
+        preset = sanitizeFilename(preset);
         logger.debug('Using preset', preset);
 
         var extendScript = [
