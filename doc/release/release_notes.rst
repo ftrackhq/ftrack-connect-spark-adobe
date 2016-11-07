@@ -7,6 +7,14 @@
 Release Notes
 *************
 
+.. release:: 0.1.5
+    :date: 2016-10-04
+
+    .. change:: fixed
+        :tags: Windows, Photoshop, Premiere Pro, After Effects
+
+        Importing components with Windows paths not working correctly.
+
 .. release:: 0.1.4
     :date: 2016-06-22
 
