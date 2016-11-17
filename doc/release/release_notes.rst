@@ -7,6 +7,14 @@
 Release Notes
 *************
 
+.. release:: 0.1.6
+    :date: 2016-11-17
+
+    .. change:: fixed
+        :tags: CC 2017
+
+        Installation required CC 2015 to be installed.
+
 .. release:: 0.1.5
     :date: 2016-10-04
 
