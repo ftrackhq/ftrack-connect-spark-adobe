@@ -2,8 +2,8 @@ window.FT = window.FT || {};
 
 /** Util */
 FT.util = (function(){
-    var logger = require('./js/lib/logger');
-    var appdirs = require('./js/lib/appdirs');
+    var logger = require('ftrack-connect-spark-adobe/logger');
+    var appdirs = require('ftrack-connect-spark-adobe/appdirs');
     var path = require('path');
     var fs = require('fs');
 

@@ -78,6 +78,12 @@ module.exports = function (grunt) {
             cwd: 'node_modules/ftrack-connect-spark/dist/',
             src: '**',
             dest: 'build/staging/ftrack_connect_spark/',
+          },
+          ftrack_connect_adobe_modules: {
+            expand: true,
+            cwd: 'source/ftrack_connect_adobe/modules/',
+            src: '**',
+            dest: 'build/staging/node_modules/',
           }
         },
     });
@@ -90,7 +96,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
 
     grunt.registerTask('copy-all',
-        ['copy:ftrack_connect_spark', 'copy:ftrack_connect_adobe']
+        ['copy:ftrack_connect_spark', 'copy:ftrack_connect_adobe', 'copy:ftrack_connect_adobe_modules']
     );
     grunt.registerTask('copyfiles', ['clean', 'copy-all']);
     grunt.registerTask('build', ['copyfiles', 'cep:build']);
