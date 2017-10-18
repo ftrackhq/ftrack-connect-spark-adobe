@@ -85,7 +85,7 @@ var config =
                 'incopy'
             ],
             source: 'build/staging',
-            families: ['CC2015'],
+            families: ['CC2015', 'CC2017', 'CC2018'],
             dependencies: dependencies
         }
     ],

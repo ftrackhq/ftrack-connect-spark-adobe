@@ -6,7 +6,7 @@ FT.uploader = (function(){
     var http = require('http');
     var https = require('https');
     var url = require('url');
-    var logger = require('./js/lib/logger');
+    var logger = require('ftrack-connect-spark-adobe/logger');
 
     /** 
      * Upload filePath to *uploadUrl* using *headers*.

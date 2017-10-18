@@ -4,7 +4,7 @@
 var fs = require('fs');
 var path = require('path');
 var winston = require('winston');
-var appdirs = require('./appdirs');
+var appdirs = require('ftrack-connect-spark-adobe/appdirs');
 
 
 

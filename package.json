@@ -1,6 +1,6 @@
 {
   "name": "ftrack-connect-adobe-spark",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "ftrack connect for Adobe Creative Cloud",
   "main": "Gruntfile.js",
   "directories": {
@@ -9,7 +9,7 @@
   "devDependencies": {
     "copyfiles": "^0.2.1",
     "grunt": "^0.4.5",
-    "grunt-cep": "git+https://bitbucket.org/ftrack/grunt-cep.git#5d3aad3f5b9cdbae87b4a2f254c50db6560a3759",
+    "grunt-cep": "git+https://bitbucket.org/ftrack/grunt-cep.git#35aa1de5e2ddff2b07cb5f1894ad9253b5d3e97f",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-contrib-copy": "^0.8.2",
     "grunt-contrib-jshint": "^0.10.0",

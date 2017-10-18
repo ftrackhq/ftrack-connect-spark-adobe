@@ -3,7 +3,7 @@ window.FT = window.FT || {};
 
 /** Exporter */
 FT.main = (function(){
-    var logger = require('./js/lib/logger');
+    var logger = require('ftrack-connect-spark-adobe/logger');
     var initialized = false;
     var csInterface = window.csInterface;
 

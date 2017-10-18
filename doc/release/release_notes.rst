@@ -7,6 +7,19 @@
 Release Notes
 *************
 
+.. release:: 0.1.7
+    :date: 2017-10-18
+
+    .. change:: changed
+        :tags: CC 2018
+
+        Added support for Creative Cloud CC 2018.
+
+    .. change:: fixed
+        :tags: Publish
+
+        Only the default "Upload" asset type can be selected before erasing the text.
+
 .. release:: 0.1.6
     :date: 2016-11-17
 

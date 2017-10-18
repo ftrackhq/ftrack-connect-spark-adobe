@@ -7,8 +7,8 @@ FT.exporter = (function(){
     var fs = require('fs');
     var tmp = require('tmp');
     var async = require('async');
-    var logger = require('./js/lib/logger');
-    var sanitizeFilename = require('./js/lib/sanitize_filename');
+    var logger = require('ftrack-connect-spark-adobe/logger');
+    var sanitizeFilename = require('ftrack-connect-spark-adobe/sanitize_filename');
     var csInterface = window.top.csInterface;
     var APP_ID = csInterface.getHostEnvironment().appId;
 

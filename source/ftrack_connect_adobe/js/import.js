@@ -3,8 +3,8 @@ window.FT = window.FT || {};
 
 /** Exporter */
 FT.import = (function(){
-    var logger = require('./js/lib/logger');
-    var sanitizeFilename = require('./js/lib/sanitize_filename');
+    var logger = require('ftrack-connect-spark-adobe/logger');
+    var sanitizeFilename = require('ftrack-connect-spark-adobe/sanitize_filename');
     var csInterface = window.top.csInterface;
 
     function openDocument(path, metadata, next) {
