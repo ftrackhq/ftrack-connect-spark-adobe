@@ -1,0 +1,2 @@
+- [changed] Added support for Adobe CC 2018
+- [fixed] Only the default "Upload" asset type can be selected before erasing the text.

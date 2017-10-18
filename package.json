@@ -1,6 +1,6 @@
 {
   "name": "ftrack-connect-adobe-spark",
-  "version": "0.2.0",
+  "version": "0.1.7",
   "description": "ftrack connect for Adobe Creative Cloud",
   "main": "Gruntfile.js",
   "directories": {

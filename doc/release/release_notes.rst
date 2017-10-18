@@ -7,8 +7,8 @@
 Release Notes
 *************
 
-.. release:: 0.2.0
-    :date: 2017-10-12
+.. release:: 0.1.7
+    :date: 2017-10-18
 
     .. change:: changed
         :tags: CC 2018
