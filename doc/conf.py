@@ -48,6 +48,8 @@ with open(
 version = _version
 release = _version
 
+templates_path = ['./_templates']
+
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 exclude_patterns = ['_template']
@@ -68,6 +70,7 @@ if not on_rtd:  # only import and set the theme if building docs locally
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 html_static_path = ['_static']
+html_style = 'ftrack.css'
 
 # If True, copy source rst files to output for reference.
 html_copy_source = True
