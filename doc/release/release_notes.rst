@@ -7,6 +7,14 @@
 Release Notes
 *************
 
+.. release:: 0.1.8
+    :date: 2017-05-03
+
+    .. change:: fixed
+        :tags: My tasks, browse
+
+        Task lists limited to 25 items in Adobe CC 2017.
+
 .. release:: 0.1.7
     :date: 2017-10-18
 

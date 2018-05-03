@@ -1,0 +1,1 @@
+- [fixed] Task lists limited to 25 items in Adobe CC 2017.
