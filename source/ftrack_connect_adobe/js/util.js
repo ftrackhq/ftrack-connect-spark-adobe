@@ -26,12 +26,12 @@ FT.util = (function(){
                 return;
             }
 
-            logger.debug('Read file data', data);
+            logger.debug('Read file data');
 
             // Try to parse the data as json.
             try {
                 jsonData = JSON.parse(data);
-                logger.debug('Parsed json data', jsonData);
+                logger.debug('Parsed json data');
             } catch (error) {
                 logger.error('Failed to parse json.', error);
                 callback(error, null);
