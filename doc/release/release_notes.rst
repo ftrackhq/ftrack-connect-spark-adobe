@@ -7,6 +7,29 @@
 Release Notes
 *************
 
+.. release:: 0.2.0
+    :date: 2019-06-18
+
+    .. change:: new
+        :tags: Publish
+
+        Remember the last asset type used.
+
+    .. change:: new
+        :tags: Publish
+
+        Automatically version up imported documents in Adobe Photoshop.
+
+    .. change:: new
+        :tags: Publish
+
+        Suggest existing assets that can be versioned up when publishing.
+
+    .. change:: changed
+        :tags: Publish
+
+        Update primary color and icon to match brand.
+
 .. release:: 0.1.8
     :date: 2017-05-03
 
