@@ -1,0 +1,4 @@
+- [new] Suggest existing assets that can be versioned up when publishing.
+- [new] Automatically version up imported documents in Adobe Photoshop.
+- [new] Remember the last asset type used.
+- [changed] Update primary color and icon to match brand.
