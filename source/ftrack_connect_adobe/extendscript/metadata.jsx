@@ -30,8 +30,7 @@ FTX.metadata = (function(){
     }
     var applicationAdapter = null;
 
-    // TODO: Detect application
-    var isApplicationAfterEffects = false;
+    var isApplicationAfterEffects = typeof aftereffects === 'object';
     if (isApplicationAfterEffects) {
         applicationAdapter = afterEffectsAdapter;
     } else {
@@ -82,14 +81,14 @@ FTX.metadata = (function(){
 
     /** Return XMP metdata as keys. */
     function getMetadata(keys) {
+        var result = {};
         if (!applicationAdapter.hasActiveDocument()) {
-            return;
+            return result;
         }
         ensureXmp();
         xmpMetadata = new XMPMeta(applicationAdapter.getXmpMetadata());
         var namespace = getXmpNamespace();
 
-        var result = {};
         for(var i = 0; i < keys.length; i++) {
             key = keys[i];
             result[key] = xmpMetadata.getProperty(namespace, key);
