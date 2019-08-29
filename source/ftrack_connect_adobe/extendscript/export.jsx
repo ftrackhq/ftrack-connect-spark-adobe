@@ -128,6 +128,39 @@ FTX.export = (function(){
 }());
 
 
+FTX.illustratorExport = (function(){
+    /** Return File in *directory* with *fileExtension*. */
+    function getExportFile(directory, fileExtension) {
+        var fileName = FTX.export.sanitizeFileName(app.activeDocument.name) || 'unknown';
+        fileName = FTX.export.replaceExtension(fileName, fileExtension);
+        return new File(directory + fileName);
+    }
+
+    /** Save document in *directory* */
+    function saveDocumentAsFileIn(directory) {
+        var file = getExportFile(directory, '.ai');
+        var options = new IllustratorSaveOptions();
+        app.activeDocument.saveAs(file, options);
+        return file.fsName;
+    }
+
+    /** Export document in *directory* */
+    function saveJpegAsFileIn(directory) {
+        var file = getExportFile(directory, '.jpg');
+        var exportOptions = new ExportOptionsJPEG();
+        exportOptions.artBoardClipping = true;
+        exportOptions.qualitySetting = 70;
+        app.activeDocument.exportFile(file, ExportType.JPEG, exportOptions);
+        return file.fsName;
+    }
+
+    return {
+        saveDocumentAsFileIn: saveDocumentAsFileIn,
+        saveJpegAsFileIn: saveJpegAsFileIn,
+    };
+}());
+
+
 FTX.premiereExport = (function() {
     /** 
      * Send CSXS Event of *type* with a JSON-encoded payload of *data*.

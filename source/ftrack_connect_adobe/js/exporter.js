@@ -58,6 +58,9 @@ FT.exporter = (function(){
             'Saving jpeg in temporary directory', directoryPath
         );
         var extendScript = 'FTX.export.saveJpegAsFileIn(\'' + directoryPath + '\')';
+        if (APP_ID === 'ILST') {
+            extendScript = 'FTX.illustratorExport.saveJpegAsFileIn(\'' + directoryPath + '\')';
+        }
         csInterface.evalScript(extendScript, function (filePath) {
             verifyReturnedValue(filePath, next);
         });
@@ -69,6 +72,9 @@ FT.exporter = (function(){
             'Saving document in temporary directory', directoryPath
         );
         var extendScript = 'FTX.export.saveDocumentAsFileIn(\'' + directoryPath + '\')';
+        if (APP_ID === 'ILST') {
+            extendScript = 'FTX.illustratorExport.saveDocumentAsFileIn(\'' + directoryPath + '\')';
+        }
         csInterface.evalScript(extendScript, function (filePath) {
             verifyReturnedValue(filePath, next);
         });
@@ -540,7 +546,7 @@ FT.exporter = (function(){
             );
         }
 
-        if (options.review && (APP_ID === 'PHSP' || APP_ID === 'PHXS')) {
+        if (options.review && (APP_ID === 'PHSP' || APP_ID === 'PHXS' || APP_ID === 'ILST')) {
             logger.debug('Including reviewable media');
             steps.push(saveJpeg, verifyReturnedValue);
             steps.push(logStep('Saved JPEG'));
@@ -550,7 +556,7 @@ FT.exporter = (function(){
             });
         }
 
-        if (options.delivery && (APP_ID === 'PHSP' || APP_ID === 'PHXS')) {
+        if (options.delivery && (APP_ID === 'PHSP' || APP_ID === 'PHXS' || APP_ID === 'ILST')) {
             logger.debug('Including deliverable media');
             steps.push(
                 saveDocument,
@@ -558,8 +564,9 @@ FT.exporter = (function(){
                 verifyReturnedValue
             );
             steps.push(function (filePath, next) {
+                var componentName = APP_ID === 'ILST' ? 'illustrator-document' : 'photoshop-document';
                 exportedFiles.push(
-                    { path: filePath, name: 'photoshop-document', use: 'delivery' }
+                    { path: filePath, name: componentName, use: 'delivery' }
                 );
                 next(null, temporaryDirectory);
             });
@@ -589,15 +596,12 @@ FT.exporter = (function(){
         console.info('Executing ExtendScript', extendScript);
         csInterface.evalScript(extendScript, function (encodedResult) {
             logger.info('Obtained metadata', encodedResult);
-            var error = null;
-            var result = null;
-
             try {
                 result = JSON.parse(encodedResult);
             } catch (err) {
-                error = err;
+                logger.info('Failed to parse metadata');
             }
-            next(error, result);
+            next(null, result);
         });
     }
 
