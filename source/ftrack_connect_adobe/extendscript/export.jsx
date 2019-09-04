@@ -144,6 +144,31 @@ FTX.illustratorExport = (function(){
         return file.fsName;
     }
 
+    function savePdfAsFileIn(directory) {
+        var file = getExportFile(directory, '.pdf');
+        var options = new PDFSaveOptions();
+        options.compatibility = PDFCompatibility.ACROBAT6;
+        options.generateThumbnails = true;
+        options.preseveEditability = true;
+        app.activeDocument.saveAs(file, options);
+        return file.fsName;
+    }
+
+    function saveSvgAsFileIn(directory) {
+        var file = getExportFile(directory, '.svg');
+        var options = new ExportOptionsSVG();
+        app.activeDocument.exportFile(file, ExportType.SVG, options);
+        return file.fsName;
+    }
+
+    function saveEpsAsFileIn(directory) {
+        var file = getExportFile(directory, '.eps');
+        var options = new EPSSaveOptions();
+        options.embedAllFonts = true;
+        app.activeDocument.saveAs(file, options);
+        return file.fsName;
+    }
+
     /** Export document in *directory* */
     function saveJpegAsFileIn(directory) {
         var file = getExportFile(directory, '.jpg');
@@ -157,6 +182,9 @@ FTX.illustratorExport = (function(){
     return {
         saveDocumentAsFileIn: saveDocumentAsFileIn,
         saveJpegAsFileIn: saveJpegAsFileIn,
+        savePdfAsFileIn: savePdfAsFileIn,
+        saveSvgAsFileIn: saveSvgAsFileIn,
+        saveEpsAsFileIn: saveEpsAsFileIn,
     };
 }());
 

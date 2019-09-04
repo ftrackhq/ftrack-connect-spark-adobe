@@ -72,9 +72,15 @@ FT.exporter = (function(){
             'Saving document in temporary directory', directoryPath
         );
         var extendScript = 'FTX.export.saveDocumentAsFileIn(\'' + directoryPath + '\')';
-        if (APP_ID === 'ILST') {
-            extendScript = 'FTX.illustratorExport.saveDocumentAsFileIn(\'' + directoryPath + '\')';
-        }
+        csInterface.evalScript(extendScript, function (filePath) {
+            verifyReturnedValue(filePath, next);
+        });
+    }
+
+    /** Save document as PDF in *directoryPath* and call *next* with resulting path. */
+    function saveIllustratorPdf(directoryPath, next) {
+        logger.log('Saving PDF in temporary directory', directoryPath);
+        var extendScript = 'FTX.illustratorExport.savePdfAsFileIn(\'' + directoryPath + '\')';
         csInterface.evalScript(extendScript, function (filePath) {
             verifyReturnedValue(filePath, next);
         });
@@ -556,7 +562,7 @@ FT.exporter = (function(){
             });
         }
 
-        if (options.delivery && (APP_ID === 'PHSP' || APP_ID === 'PHXS' || APP_ID === 'ILST')) {
+        if (options.delivery && (APP_ID === 'PHSP' || APP_ID === 'PHXS')) {
             logger.debug('Including deliverable media');
             steps.push(
                 saveDocument,
@@ -566,7 +572,55 @@ FT.exporter = (function(){
             steps.push(function (filePath, next) {
                 var componentName = APP_ID === 'ILST' ? 'illustrator-document' : 'photoshop-document';
                 exportedFiles.push(
-                    { path: filePath, name: componentName, use: 'delivery' }
+                    { path: filePath, use: 'pdf-review' }
+                );
+                next(null, temporaryDirectory);
+            });
+        }
+
+        if (options.delivery && APP_ID === 'ILST') {
+            steps.push(function saveIllustratorDocument(directoryPath, next) {
+                var saveFormat = options.save_as_format || 'ai';
+                logger.debug('Saving document in format', format);
+                var formatMap = {
+                    ai: {
+                        method: 'saveDocumentAsFileIn',
+                        componentName: 'illustrator-document',
+                    },
+                    pdf: {
+                        method: 'savePdfAsFileIn',
+                        componentName: 'pdf-document',
+                    },
+                    svg: {
+                        method: 'saveSvgAsFileIn',
+                        componentName: 'svg-document',
+                    },
+                    eps: {
+                        method: 'saveEpsAsFileIn',
+                        componentName: 'eps-document',
+                    },
+                }
+                var format = formatMap[saveFormat] || formatMap.ai;
+                var extendScript = 'FTX.illustratorExport.' + format.method + '(\'' + directoryPath + '\')';
+
+                csInterface.evalScript(extendScript, function (filePath) {
+                    verifyReturnedValue(filePath, function(error, filePath) {
+                        exportedFiles.push(
+                            { path: filePath, use: 'delivery', name: format.componentName }
+                        );
+                        next(error, temporaryDirectory);
+                    });
+                });
+                
+            });
+        }
+
+        if (options.include_pdf && APP_ID === 'ILST') {
+            logger.debug('Including PDF');
+            steps.push(saveIllustratorPdf);
+            steps.push(function (filePath, next) {
+                exportedFiles.push(
+                    { path: filePath, use: 'pdf-review' }
                 );
                 next(null, temporaryDirectory);
             });
@@ -653,6 +707,18 @@ FT.exporter = (function(){
                 next(null, result);
             });
         }
+
+        if (APP_ID === 'ILST') {
+            result.exportOptions = {
+                formats: [
+                    { label: 'Adobe Illustrator (ai)', value: 'ai' },
+                    { label: 'Illustrator EPS (eps)', value: 'eps' },
+                    { label: 'Adobe PDF (pdf)', value: 'pdf' },
+                    { label: 'SVG (svg)', value: 'svg' },
+                ]
+            }
+        }
+
 
         if (options.metadata) {
             steps.push(function (result, next) {
