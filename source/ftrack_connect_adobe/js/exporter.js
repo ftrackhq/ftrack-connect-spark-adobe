@@ -570,9 +570,8 @@ FT.exporter = (function(){
                 verifyReturnedValue
             );
             steps.push(function (filePath, next) {
-                var componentName = APP_ID === 'ILST' ? 'illustrator-document' : 'photoshop-document';
                 exportedFiles.push(
-                    { path: filePath, use: 'pdf-review' }
+                    { path: filePath, use: 'delivery', name: 'photoshop-document' }
                 );
                 next(null, temporaryDirectory);
             });
