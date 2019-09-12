@@ -7,6 +7,38 @@
 Release Notes
 *************
 
+.. release:: 0.3.0
+    :date: 2019-09-12
+
+    .. change:: new
+        :tags: Illustrator, Publish
+
+        Publish assets from Adobe Illustrator to ftrack.
+
+        The active illustrator document in one of the following formats:
+
+            * Adobe Illustrator (ai) (component named illustrator-document)
+            * Illustrator EPS (eps) (component named eps-document)
+            * Adobe PDF (pdf) (component named pdf-document)
+            * SVG (svg) (component named svg-document)
+
+        An exported JPEG image will be used for thumbnails and preview.
+        Optionally, the active document can also be exported as a PDF for
+        client reviews.
+ 
+    .. change:: new
+        :tags: Illustrator, Import
+
+        Import published assets into Adobe Illustrator.
+
+        When importing a version, you get the option to import or open the file.
+
+            * Importing the file creates a new layer in the active document
+              with the asset name and places a linked item to the original file.
+            * Opening the file opens the file as a new document. A caveat with
+              opening the file is that it is possible to overwrite the
+              previously published file.
+
 .. release:: 0.2.0
     :date: 2019-06-18
 

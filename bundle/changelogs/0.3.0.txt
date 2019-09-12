@@ -1,0 +1,2 @@
+- [new] Publish assets from Adobe Illustrator to ftrack.
+- [new] Import published assets into Adobe Illustrator.
