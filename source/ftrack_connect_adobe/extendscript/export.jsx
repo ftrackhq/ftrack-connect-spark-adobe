@@ -128,6 +128,67 @@ FTX.export = (function(){
 }());
 
 
+FTX.illustratorExport = (function(){
+    /** Return File in *directory* with *fileExtension*. */
+    function getExportFile(directory, fileExtension) {
+        var fileName = FTX.export.sanitizeFileName(app.activeDocument.name) || 'unknown';
+        fileName = FTX.export.replaceExtension(fileName, fileExtension);
+        return new File(directory + fileName);
+    }
+
+    /** Save document in *directory* */
+    function saveDocumentAsFileIn(directory) {
+        var file = getExportFile(directory, '.ai');
+        var options = new IllustratorSaveOptions();
+        app.activeDocument.saveAs(file, options);
+        return file.fsName;
+    }
+
+    function savePdfAsFileIn(directory) {
+        var file = getExportFile(directory, '.pdf');
+        var options = new PDFSaveOptions();
+        options.compatibility = PDFCompatibility.ACROBAT6;
+        options.generateThumbnails = true;
+        options.preseveEditability = true;
+        app.activeDocument.saveAs(file, options);
+        return file.fsName;
+    }
+
+    function saveSvgAsFileIn(directory) {
+        var file = getExportFile(directory, '.svg');
+        var options = new ExportOptionsSVG();
+        app.activeDocument.exportFile(file, ExportType.SVG, options);
+        return file.fsName;
+    }
+
+    function saveEpsAsFileIn(directory) {
+        var file = getExportFile(directory, '.eps');
+        var options = new EPSSaveOptions();
+        options.embedAllFonts = true;
+        app.activeDocument.saveAs(file, options);
+        return file.fsName;
+    }
+
+    /** Export document in *directory* */
+    function saveJpegAsFileIn(directory) {
+        var file = getExportFile(directory, '.jpg');
+        var exportOptions = new ExportOptionsJPEG();
+        exportOptions.artBoardClipping = true;
+        exportOptions.qualitySetting = 70;
+        app.activeDocument.exportFile(file, ExportType.JPEG, exportOptions);
+        return file.fsName;
+    }
+
+    return {
+        saveDocumentAsFileIn: saveDocumentAsFileIn,
+        saveJpegAsFileIn: saveJpegAsFileIn,
+        savePdfAsFileIn: savePdfAsFileIn,
+        saveSvgAsFileIn: saveSvgAsFileIn,
+        saveEpsAsFileIn: saveEpsAsFileIn,
+    };
+}());
+
+
 FTX.premiereExport = (function() {
     /** 
      * Send CSXS Event of *type* with a JSON-encoded payload of *data*.

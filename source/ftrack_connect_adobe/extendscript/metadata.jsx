@@ -28,10 +28,26 @@ FTX.metadata = (function(){
             app.project.xmpPacket = xmpMetadata.serialize();
         }
     }
+
+    var illustratorAdapter = {
+        hasActiveDocument: function () {
+            return !!app.activeDocument;
+        },
+        getXmpMetadata: function () {
+            return app.activeDocument.XMPString;
+        },
+        setXmpMetadata: function (xmpMetadata) {
+            app.activeDocument.XMPString = xmpMetadata.serialize();
+        }
+    };
+
     var applicationAdapter = null;
 
+    var isApplicationIllustrator = app.name && app.name.toLowerCase().indexOf('illustrator') !== -1;
     var isApplicationAfterEffects = typeof aftereffects === 'object';
-    if (isApplicationAfterEffects) {
+    if (isApplicationIllustrator) {
+        applicationAdapter = illustratorAdapter;
+    } else if (isApplicationAfterEffects) {
         applicationAdapter = afterEffectsAdapter;
     } else {
         applicationAdapter = photoshopAdapter;

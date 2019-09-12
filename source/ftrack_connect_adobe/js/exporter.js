@@ -58,6 +58,9 @@ FT.exporter = (function(){
             'Saving jpeg in temporary directory', directoryPath
         );
         var extendScript = 'FTX.export.saveJpegAsFileIn(\'' + directoryPath + '\')';
+        if (APP_ID === 'ILST') {
+            extendScript = 'FTX.illustratorExport.saveJpegAsFileIn(\'' + directoryPath + '\')';
+        }
         csInterface.evalScript(extendScript, function (filePath) {
             verifyReturnedValue(filePath, next);
         });
@@ -69,6 +72,15 @@ FT.exporter = (function(){
             'Saving document in temporary directory', directoryPath
         );
         var extendScript = 'FTX.export.saveDocumentAsFileIn(\'' + directoryPath + '\')';
+        csInterface.evalScript(extendScript, function (filePath) {
+            verifyReturnedValue(filePath, next);
+        });
+    }
+
+    /** Save document as PDF in *directoryPath* and call *next* with resulting path. */
+    function saveIllustratorPdf(directoryPath, next) {
+        logger.log('Saving PDF in temporary directory', directoryPath);
+        var extendScript = 'FTX.illustratorExport.savePdfAsFileIn(\'' + directoryPath + '\')';
         csInterface.evalScript(extendScript, function (filePath) {
             verifyReturnedValue(filePath, next);
         });
@@ -540,7 +552,7 @@ FT.exporter = (function(){
             );
         }
 
-        if (options.review && (APP_ID === 'PHSP' || APP_ID === 'PHXS')) {
+        if (options.review && (APP_ID === 'PHSP' || APP_ID === 'PHXS' || APP_ID === 'ILST')) {
             logger.debug('Including reviewable media');
             steps.push(saveJpeg, verifyReturnedValue);
             steps.push(logStep('Saved JPEG'));
@@ -559,7 +571,55 @@ FT.exporter = (function(){
             );
             steps.push(function (filePath, next) {
                 exportedFiles.push(
-                    { path: filePath, name: 'photoshop-document', use: 'delivery' }
+                    { path: filePath, use: 'delivery', name: 'photoshop-document' }
+                );
+                next(null, temporaryDirectory);
+            });
+        }
+
+        if (options.delivery && APP_ID === 'ILST') {
+            steps.push(function saveIllustratorDocument(directoryPath, next) {
+                var saveFormat = options.save_as_format || 'ai';
+                logger.debug('Saving document in format', format);
+                var formatMap = {
+                    ai: {
+                        method: 'saveDocumentAsFileIn',
+                        componentName: 'illustrator-document',
+                    },
+                    pdf: {
+                        method: 'savePdfAsFileIn',
+                        componentName: 'pdf-document',
+                    },
+                    svg: {
+                        method: 'saveSvgAsFileIn',
+                        componentName: 'svg-document',
+                    },
+                    eps: {
+                        method: 'saveEpsAsFileIn',
+                        componentName: 'eps-document',
+                    },
+                }
+                var format = formatMap[saveFormat] || formatMap.ai;
+                var extendScript = 'FTX.illustratorExport.' + format.method + '(\'' + directoryPath + '\')';
+
+                csInterface.evalScript(extendScript, function (filePath) {
+                    verifyReturnedValue(filePath, function(error, filePath) {
+                        exportedFiles.push(
+                            { path: filePath, use: 'delivery', name: format.componentName }
+                        );
+                        next(error, temporaryDirectory);
+                    });
+                });
+                
+            });
+        }
+
+        if (options.include_pdf && APP_ID === 'ILST') {
+            logger.debug('Including PDF');
+            steps.push(saveIllustratorPdf);
+            steps.push(function (filePath, next) {
+                exportedFiles.push(
+                    { path: filePath, use: 'pdf-review' }
                 );
                 next(null, temporaryDirectory);
             });
@@ -589,15 +649,12 @@ FT.exporter = (function(){
         console.info('Executing ExtendScript', extendScript);
         csInterface.evalScript(extendScript, function (encodedResult) {
             logger.info('Obtained metadata', encodedResult);
-            var error = null;
-            var result = null;
-
             try {
                 result = JSON.parse(encodedResult);
             } catch (err) {
-                error = err;
+                logger.info('Failed to parse metadata');
             }
-            next(error, result);
+            next(null, result);
         });
     }
 
@@ -649,6 +706,18 @@ FT.exporter = (function(){
                 next(null, result);
             });
         }
+
+        if (APP_ID === 'ILST') {
+            result.exportOptions = {
+                formats: [
+                    { label: 'Adobe Illustrator (ai)', value: 'ai' },
+                    { label: 'Illustrator EPS (eps)', value: 'eps' },
+                    { label: 'Adobe PDF (pdf)', value: 'pdf' },
+                    { label: 'SVG (svg)', value: 'svg' },
+                ]
+            }
+        }
+
 
         if (options.metadata) {
             steps.push(function (result, next) {
