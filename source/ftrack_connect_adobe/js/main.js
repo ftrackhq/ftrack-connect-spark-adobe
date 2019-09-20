@@ -1,6 +1,14 @@
 
 window.FT = window.FT || {};
 
+FT.SUPPORTED_APPS = [
+    'PHSP',
+    'PHXS',
+    'ILST',
+    'AEFT',
+    'PPRO',
+];
+
 /** Exporter */
 FT.main = (function(){
     var logger = require('ftrack-connect-spark-adobe/logger');
@@ -12,6 +20,11 @@ FT.main = (function(){
      * folder [ExtensionRoot]/jsx will be loaded. 
      */
     function loadExtendscript() {
+        if (!isApplicationSupported()) {
+            logger.info('Extendscript not supported in application.');
+            return;
+        }
+
         // Load dependencies first.
         var dependenciesRoot = csInterface.getSystemPath(SystemPath.EXTENSION) + "/ftrack_connect_adobe/dependencies/";
         csInterface.evalScript('$._ext.evalFiles("' + dependenciesRoot + '")', function (result) {
@@ -30,6 +43,11 @@ FT.main = (function(){
                 });
             });
         });
+    }
+
+    function isApplicationSupported() {
+        var APP_ID = getHostEnvironment().appId;
+        return FT.SUPPORTED_APPS.indexOf(APP_ID) !== -1;
     }
 
     /** Return host environment */
