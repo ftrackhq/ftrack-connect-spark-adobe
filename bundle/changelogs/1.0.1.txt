@@ -1,0 +1,1 @@
+- [fixed] Error messages in applications without full functionality.

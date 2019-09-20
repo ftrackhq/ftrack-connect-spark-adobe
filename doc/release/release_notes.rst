@@ -7,6 +7,21 @@
 Release Notes
 *************
 
+.. release:: 1.0.1
+    :date: 2019-09-20
+
+    .. change:: fixed
+        :tags: Dreamwaver, Animate
+
+        Error messages in applications without full functionality.
+
+.. release:: 1.0.0
+    :date: 2019-09-20
+
+    .. change:: changed
+
+        Bumped version number, but otherwise unchanged.
+
 .. release:: 0.3.0
     :date: 2019-09-12
 
