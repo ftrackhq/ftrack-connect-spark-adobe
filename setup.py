@@ -26,7 +26,8 @@ SPARK_SOURCE_PATH = os.path.join(
 ADOBE_MODULES_SOURCE_PATH = os.path.join(
     SOURCE_PATH, 'ftrack_connect_adobe', 'modules'
 )
-ADDITIONAL_MODULES = [os.path.join(ROOT_PATH, 'node_modules', m) for m in ['async','colors','cycle','eyes','isstream','pkginfo','stack-trace','tmp','winston']]
+ADDITIONAL_MODULES = [os.path.join(ROOT_PATH, 'node_modules', m) for m in ['async','colors','cycle','eyes','isstream',
+                                                                           'pkginfo','stack-trace','tmp','winston']]
 
 MANIFEST_PATH = os.path.join(
     ROOT_PATH, 'bundle', 'manifest.xml'
