@@ -7,6 +7,13 @@
 Release Notes
 *************
 
+.. release:: 1.0.2
+    :date: 2020-12-01
+
+    .. change:: fixed
+
+        Fixed extension install error message for CC 2020+ versions.
+
 .. release:: 1.0.1
     :date: 2019-09-20
 
