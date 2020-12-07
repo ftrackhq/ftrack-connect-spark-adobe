@@ -7,8 +7,8 @@
 Release Notes
 *************
 
-.. release:: 1.0.2
-    :date: 2020-12-01
+.. release:: 1.0.3
+    :date: 2020-12-07
 
     .. change:: fixed
 

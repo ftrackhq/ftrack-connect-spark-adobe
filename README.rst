@@ -82,7 +82,7 @@ Building
 
 Run::
 
-    python setup.py build_plugin
+    python setup.py build_extension
 
 The built extension will be available in build folder.
 
