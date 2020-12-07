@@ -33,6 +33,10 @@ MANIFEST_PATH = os.path.join(
     ROOT_PATH, 'bundle', 'manifest.xml'
 )
 
+UPDATE_PATH = os.path.join(
+    ROOT_PATH, 'bundle', 'update.xml'
+)
+
 CERTIFICATE_PATH = os.path.join(
     ROOT_PATH, 'bundle', 'certificate.p12'
 )
@@ -85,12 +89,6 @@ class BuildExtension(setuptools.Command):
         if result.returncode == 127:
             raise Exception('%s is not in your ${PATH}!'%(ZXPSIGN_CMD))
 
-        # with open(MANIFEST_PATH, 'r') as f:
-        #     result = re.findall( '"version": "(.*?)"', f.read())
-        # if result is None or len(result) != 1:
-        #     raise Exception('Cannot extract extension version from {}!'.format(MANIFEST_PATH))
-        # extension_version = result[0]
-
         # Clean staging path
         shutil.rmtree(STAGING_PATH, ignore_errors=True)
 
@@ -117,7 +115,7 @@ class BuildExtension(setuptools.Command):
                 os.path.join(STAGING_PATH, 'node_modules', os.path.basename(p))
             )
 
-        # Transfers manifest, store version
+        # Transfer manifest xml, store version
         manifest_staging_path = os.path.join(STAGING_PATH, 'CSXS', 'manifest.xml')
         if not os.path.exists(os.path.dirname(manifest_staging_path)):
             os.makedirs(os.path.dirname(manifest_staging_path))
@@ -125,8 +123,19 @@ class BuildExtension(setuptools.Command):
             with open(manifest_staging_path, 'w') as f_dst:
                 f_dst.write(f_src.read().replace('VERSION', VERSION))
 
-        # Create and sign extension
         extension_output_path = os.path.join(BUILD_PATH, 'ftrack_connect_adobe_{}.zxp'.format(VERSION))
+
+        # Generate auto update xml
+        update_staging_path = os.path.join(STAGING_PATH, 'update.xml')
+        with open(UPDATE_PATH, 'r') as f_src:
+            with open(update_staging_path, 'w') as f_dst:
+                f_dst.write(f_src.read().
+                            replace('<%= bundle.version %>', VERSION).
+                            replace('<%= download_url %>', os.path.basename(extension_output_path)).
+                            replace('<%= bundle.description %>', 'ftrack connect extension for Adobe Creative Cloud.')
+                            )
+
+        # Create and sign extension
         if os.path.exists(extension_output_path):
             os.remove(extension_output_path)
         result = subprocess.Popen([
@@ -136,7 +145,7 @@ class BuildExtension(setuptools.Command):
             extension_output_path,
             CERTIFICATE_PATH,
             '{}'.format(os.environ['FTRACK_ADOBE_CERTIFICATE_PASSWORD'])])
-        result.communicate()[0]
+        result.communicate()
         if result.returncode!=0:
             raise Exception('Could not sign and build extension!')
 
