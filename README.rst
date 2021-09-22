@@ -14,7 +14,7 @@ http://ftrack-connect-spark-adobe.rtd.ftrack.com/en/stable/
 Setting up node environment
 ===========================
 
-You will need a recent version of node (5+) with npm installed. It is highly
+You will need a recent version of node with npm installed. It is highly
 recommended that you also install a version manager for node, such as
 `n (Mac OS) <https://github.com/tj/n>`_ or
 `nodist (windows) <https://github.com/marcelklehr/nodist>`_. It enables you
@@ -43,7 +43,8 @@ Mac OS
 Windows
 -------
 
-TODO
+1. Install `Node.js 9.11.2 <https://nodejs.org/dist/latest-v9.x/>`_
+2. Download `ZXPSignCMD.exe <https://github.com/Adobe-CEP/CEP-Resources/blob/master/ZXPSignCMD/4.1.103/win64/ZXPSignCmd.exe>`_ and make it available in your system $PATH environment variable.
 
 Setting up development environment
 ==================================
