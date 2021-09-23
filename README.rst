@@ -44,14 +44,19 @@ Windows
 -------
 
 1. Install `Node.js 9.11.2 <https://nodejs.org/dist/latest-v9.x/>`_
-2. Download `ZXPSignCMD.exe <https://github.com/Adobe-CEP/CEP-Resources/blob/master/ZXPSignCMD/4.1.103/win64/ZXPSignCmd.exe>`_ and make it available in your system $PATH environment variable.
+2. Download `ZXPSignCMD.exe <https://github.com/Adobe-CEP/CEP-Resources/blob/master/ZXPSignCMD/4.1.103/win64/ZXPSignCmd.exe>`_ 
+
+.. note::
+
+    As ZXPSignCMD comes without installer, make sure it is set in your system $PATH environment variable.
+
 
 Setting up development environment
 ==================================
 
 TBC
 
-Building (MacOS)
+Building (All platforms)
 ================
 
 Preparations
@@ -74,9 +79,13 @@ Preparations
 
 5. Update extension version string in package.json.
 6. Download and install ZXPSignCMD (https://github.com/Adobe-CEP/CEP-Resources/tree/master/ZXPSignCMD).
-7. Link executable to make it available to build::
 
-    ln -s /path/to/ZXPSignCmd-64bit /usr/local/bin/ZXPSignCmd
+.. note:: 
+    
+    (MacOS only)
+    7. Link executable to make it available to build::
+
+        ln -s /path/to/ZXPSignCmd-64bit /usr/local/bin/ZXPSignCmd
 
 Building
 --------
