@@ -289,7 +289,7 @@ FT.exporter = (function(){
             var extension = path.extname(filePath);
             var basename = path.basename(filePath, extension);
 
-            // Assume frame numbers are at end of basename, 
+            // Assume frame numbers are at end of basename,
             // e.g. comp_00000.tif
             var fileNumberMatches = basename.match(/\d+$/) || [''];
             var firstFrame = fileNumberMatches[0];
@@ -321,7 +321,7 @@ FT.exporter = (function(){
      *         include delivery media in export
      *     review
      *         include reviewable media in export
-     *  
+     *
      */
     function exportMedia(options, callback) {
         logger.info('Exporting media', options);
@@ -610,7 +610,7 @@ FT.exporter = (function(){
                         next(error, temporaryDirectory);
                     });
                 });
-                
+
             });
         }
 
@@ -675,7 +675,7 @@ FT.exporter = (function(){
 
     function getExportSettingOptions(value, next) {
         logger.info('Collecting export options.');
-        var extendScript = 'FTX.afterEffectsExport.getExportSettingOptions()';
+        var extendScript = 'FTX.export.getExportSettingOptions()';
         csInterface.evalScript(extendScript, function (options) {
             logger.info(options);
             verifyReturnedValue(options, next);
@@ -699,7 +699,7 @@ FT.exporter = (function(){
             next(null, result);
         });
 
-        if (APP_ID === 'AEFT') {
+        if (APP_ID === 'AEFT' || APP_ID === 'PHSP' || APP_ID === 'PHXS') {
             steps.push(getExportSettingOptions);
             steps.push(function (exportOptions, next) {
                 result.exportOptions = JSON.parse(exportOptions);
