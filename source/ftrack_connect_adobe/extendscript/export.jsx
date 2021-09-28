@@ -130,7 +130,8 @@ FTX.baseExport = (function () {
 FTX.photoshopExport = (function(){
     function getExportSettingOptions() {
         var name = app.activeDocument && app.activeDocument.name;
-        var ext = basename = '';
+        var ext = '';
+        var basename = name;
         if (name.indexOf('.') >= 0) {
             const split = name.split('.');
             ext = split[1];
