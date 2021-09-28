@@ -564,17 +564,27 @@ FT.exporter = (function(){
 
         if (options.delivery && (APP_ID === 'PHSP' || APP_ID === 'PHXS')) {
             logger.debug('Including deliverable media');
-            steps.push(
-                saveDocument,
-                logStep('Saved document'),
-                verifyReturnedValue
+            steps.push((directoryPath, next) => {
+                    var extendScript = (
+                        'FTX.export.saveAsFileIn(\'' + directoryPath
+                        + '\', undefined, \'.' + options.save_as_format + '\')');
+                    logger.info(extendScript);
+                    csInterface.evalScript(extendScript, function (filePath) {
+                        logger.info(filePath);
+                        logStep('Saved document');
+                        verifyReturnedValue(filePath, function (error, filePath) {
+                            exportedFiles.push(
+                                {
+                                    path: filePath,
+                                    use: 'delivery',
+                                    name: options.component_name,
+                                }
+                            );
+                            next(error, temporaryDirectory);
+                        });
+                    });
+                }
             );
-            steps.push(function (filePath, next) {
-                exportedFiles.push(
-                    { path: filePath, use: 'delivery', name: 'photoshop-document' }
-                );
-                next(null, temporaryDirectory);
-            });
         }
 
         if (options.delivery && APP_ID === 'ILST') {
