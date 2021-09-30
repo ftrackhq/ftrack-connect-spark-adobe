@@ -535,17 +535,18 @@ FTX.afterEffectsExport = (function() {
 }());
 
 FTX.export = (function() {
-    const app = FTX.getAppId();
-    var mapping = {
+    var methods = FTX.baseExport;
+    var overrides = {
         'AEFT': FTX.afterEffectsExport,
         'PHSP': FTX.photoshopExport,
         'PHXS': FTX.photoshopExport,
-    };
-    var methods = FTX.baseExport;
+    }[FTX.getAppId()];
 
-    for (var k in mapping[app]) {
-        methods[k] = mapping[app][k];
+    for (var k in overrides) {
+        methods[k] = overrides[k];
     }
 
     return methods;
 }());
+
+//FTX.export.getExportSettingOptions();
