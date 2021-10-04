@@ -10,6 +10,7 @@ from setuptools.command.test import test as TestCommand
 import setuptools
 import shutil
 import subprocess
+from distutils.spawn import find_executable
 
 ROOT_PATH = os.path.dirname(
     os.path.realpath(__file__)
@@ -26,8 +27,13 @@ SPARK_SOURCE_PATH = os.path.join(
 ADOBE_MODULES_SOURCE_PATH = os.path.join(
     SOURCE_PATH, 'ftrack_connect_adobe', 'modules'
 )
-ADDITIONAL_MODULES = [os.path.join(ROOT_PATH, 'node_modules', m) for m in ['async','colors','cycle','eyes','isstream',
-                                                                           'pkginfo','stack-trace','tmp','winston']]
+ADDITIONAL_MODULES = [
+    os.path.join(ROOT_PATH, 'node_modules', m) 
+    for m in [
+        'async','colors','cycle','eyes','isstream',
+        'pkginfo','stack-trace','tmp','winston'
+    ]
+]
 
 MANIFEST_PATH = os.path.join(
     ROOT_PATH, 'bundle', 'manifest.xml'
@@ -84,9 +90,9 @@ class BuildExtension(setuptools.Command):
         if len(os.environ.get('FTRACK_ADOBE_CERTIFICATE_PASSWORD') or '') == 0:
             raise Exception('Need certificate password in FTRACK_ADOBE_CERTIFICATE_PASSWORD environment variable!')
 
-        result = subprocess.Popen(['/bin/bash', '-c', '{} > /dev/null 2>&1'.format(ZXPSIGN_CMD)])
-        result.communicate()[0]
-        if result.returncode == 127:
+
+        ZXPSIGN_CMD_PATH = find_executable(ZXPSIGN_CMD)
+        if not ZXPSIGN_CMD_PATH:
             raise Exception('%s is not in your ${PATH}!'%(ZXPSIGN_CMD))
 
         # Clean staging path
@@ -139,7 +145,7 @@ class BuildExtension(setuptools.Command):
         if os.path.exists(extension_output_path):
             os.remove(extension_output_path)
         result = subprocess.Popen([
-            ZXPSIGN_CMD,
+            ZXPSIGN_CMD_PATH,
             '-sign',
             STAGING_PATH,
             extension_output_path,

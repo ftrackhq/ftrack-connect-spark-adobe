@@ -14,7 +14,7 @@ http://ftrack-connect-spark-adobe.rtd.ftrack.com/en/stable/
 Setting up node environment
 ===========================
 
-You will need a recent version of node (5+) with npm installed. It is highly
+You will need a recent version of node with npm installed. It is highly
 recommended that you also install a version manager for node, such as
 `n (Mac OS) <https://github.com/tj/n>`_ or
 `nodist (windows) <https://github.com/marcelklehr/nodist>`_. It enables you
@@ -43,14 +43,20 @@ Mac OS
 Windows
 -------
 
-TODO
+1. Install `Node.js 9.11.2 <https://nodejs.org/dist/latest-v9.x/>`_
+2. Download `ZXPSignCMD.exe <https://github.com/Adobe-CEP/CEP-Resources/blob/master/ZXPSignCMD/4.1.103/win64/ZXPSignCmd.exe>`_ 
+
+.. note::
+
+    As ZXPSignCMD comes without installer, make sure it is set in your system $PATH environment variable.
+
 
 Setting up development environment
 ==================================
 
 TBC
 
-Building (MacOS)
+Building (All platforms)
 ================
 
 Preparations
@@ -73,9 +79,13 @@ Preparations
 
 5. Update extension version string in package.json.
 6. Download and install ZXPSignCMD (https://github.com/Adobe-CEP/CEP-Resources/tree/master/ZXPSignCMD).
-7. Link executable to make it available to build::
 
-    ln -s /path/to/ZXPSignCmd-64bit /usr/local/bin/ZXPSignCmd
+.. note:: 
+    
+    (MacOS only)
+    7. Link executable to make it available to build::
+
+        ln -s /path/to/ZXPSignCmd-64bit /usr/local/bin/ZXPSignCmd
 
 Building
 --------
