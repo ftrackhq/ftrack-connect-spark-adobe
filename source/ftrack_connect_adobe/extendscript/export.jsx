@@ -60,15 +60,32 @@ FTX.baseExport = (function () {
     function getPdfExportOptions(options) {
         options = options || {};
         var exportOptions = new PDFSaveOptions();
-        exportOptions.embedThumbnail = options.embedThumbnail || true;
-        exportOptions.embedColorProfile = options.embedColorProfile || true;
-        exportOptions.jpegQuality = options.jpegQuality || 12;
+
+        exportOptions.PDFCompatibility = PDFCompatibility.PDF16;
+        //
+        // exportOptions.colorConversion = false;
+        // exportOptions.embedColorProfile = true;
+        // exportOptions.profileInclusionPolicy = false;
+        // // exportOptions.encoding = PDFEncoding.PDFZIP;
+        // // exportOptions.downSample = PDFResample.PDFBICUBIC;
+        // exportOptions.PDFStandard = PDFStandard.PDFX32003;
+        //
+        // // saveOpts.downSampleSize = 200;
+        // // saveOpts.downSampleSizeLimit = 250;
+        // exportOptions.layers = false;
+        // exportOptions.jpegQuality = 8;
+        // // exportOptions.embedThumbnail = options.embedThumbnail || true;
+        // // exportOptions.embedColorProfile = options.embedColorProfile || true;
+        // // exportOptions.jpegQuality = options.jpegQuality || 12;
+        // // exportOptions.compatibility = PDFCompatibility.ACROBAT6;
+        // // exportOptions.generateThumbnails = options.generateThumbnails || true;
+        // // exportOptions.preseveEditability = options.preseveEditability  || true;
         return exportOptions;
     }
 
     function getPngExportOptions(options){
         options = options || {};
-        var exportOptions = new PngSaveOptions();
+        var exportOptions = new PNGSaveOptions();
         return exportOptions;     
     }
 
@@ -90,26 +107,42 @@ FTX.baseExport = (function () {
         return exportOptions;
     }
 
-    /** Save jpeg image in *directory* */
+
+    /** Save resized jpeg image in *directory* */
     function saveJpegAsFileIn(directory, options) {
+        // Save state
         var originalHistoryState = app.activeDocument.activeHistoryState;
+        // Resize image to max 4k x 4k.
         resizeImageFit(4096, 4096);
         var filePath = saveAsFileIn(directory, getJpegExportOptions(options), '.jpg');
-
         // Restore state
         app.activeDocument.activeHistoryState = originalHistoryState;
-
         return filePath;
     }
 
+    /** Save jpeg image in *directory* */
+    function saveRawJpegAsFileIn(directory, options) {
+        return saveAsFileIn(directory, getJpegExportOptions(options), '.jpg');
+    }
+
+    /** Save tiff image in *directory* */
     function saveTiffAsFileIn(directory, options) {
-        var originalHistoryState = app.activeDocument.activeHistoryState;
-        var filePath = saveAsFileIn(directory, getTiffExportOptions(options), '.tif');
+        return saveAsFileIn(directory, getTiffExportOptions(options), '.tif');
+    }
 
-        // Restore state
-        app.activeDocument.activeHistoryState = originalHistoryState;
+    function savePngAsFileIn(directory, options) {
+        return saveAsFileIn(directory, getPngExportOptions(options), '.png');
+    }
 
-        return filePath;
+    function savePdfAsFileIn(directory) {
+        return saveAsFileIn(directory, getPdfExportOptions(options), '.pdf')
+        // var file = getExportFile(directory, '.pdf');
+        // var options = new PDFSaveOptions();
+        // options.compatibility = PDFCompatibility.ACROBAT6;
+        // options.generateThumbnails = true;
+        // options.preseveEditability = true;
+        // app.activeDocument.saveAs(file, options);
+        // return file.fsName;
     }
 
     /** Resize image to be contained within *maxWidth* and *maxHeight*. */
@@ -155,14 +188,17 @@ FTX.baseExport = (function () {
         saveDocumentAsFileIn: saveDocumentAsFileIn,
         
         /** export options */
-        getTiffExportOptions: getTiffExportOptions,
         getJpegExportOptions: getJpegExportOptions,
+        getTiffExportOptions: getTiffExportOptions,
         getPngExportOptions: getPngExportOptions,
         getPdfExportOptions: getPdfExportOptions,
 
         /** save functions */
         saveJpegAsFileIn: saveJpegAsFileIn,
+        saveRawJpegAsFileIn: saveRawJpegAsFileIn,
         saveTiffAsFileIn: saveTiffAsFileIn,
+        savePngAsFileIn: savePngAsFileIn,
+        savePdfAsFileIn: savePdfAsFileIn,
         resizeImageFit: resizeImageFit,
     };
 }());
@@ -587,5 +623,3 @@ FTX.export = (function() {
 
     return methods;
 }());
-
-//FTX.export.getExportSettingOptions();

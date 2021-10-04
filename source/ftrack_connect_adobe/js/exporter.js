@@ -565,13 +565,40 @@ FT.exporter = (function(){
         if (options.delivery && (APP_ID === 'PHSP' || APP_ID === 'PHXS')) {
             logger.debug('Including deliverable media');
             steps.push((directoryPath, next) => {
-                    var extendScript = (
-                        'FTX.export.saveAsFileIn(\'' + directoryPath
-                        + '\', undefined, \'.' + options.save_as_format + '\')');
-                    logger.info(extendScript);
+
+                    var saveFormat = options.save_as_format || 'psd';
+                    logger.debug('Saving document in format', format);
+                    var formatMap = {
+                        psd: {
+                            method: 'saveDocumentAsFileIn',
+                        },
+                        jpg: {
+                            method: 'saveRawJpegAsFileIn',
+                        },
+                        jpeg: {
+                            method: 'saveRawJpegAsFileIn',
+                        },
+                        tif: {
+                            method: 'saveTiffAsFileIn',
+                        },
+                        tiff: {
+                            method: 'saveTiffAsFileIn',
+                        },
+                        png: {
+                            method: 'savePngAsFileIn',
+                        },
+                        pdf: {
+                            method: 'savePdfAsFileIn',
+                        },
+                    }
+
+                    var format = formatMap[saveFormat] || formatMap.psd;
+                    var extendScript = 'FTX.export.' + format.method + '(\'' + directoryPath + '\')';
+
+                    logger.info('Running deliverable script: ', extendScript);
+
                     csInterface.evalScript(extendScript, function (filePath) {
-                        logger.info(filePath);
-                        logStep('Saved document');
+                        logger.info('Ready to deliver: ', filePath);
                         verifyReturnedValue(filePath, function (error, filePath) {
                             exportedFiles.push(
                                 {
@@ -713,6 +740,7 @@ FT.exporter = (function(){
             steps.push(getExportSettingOptions);
             steps.push(function (exportOptions, next) {
                 result.exportOptions = JSON.parse(exportOptions);
+                logger.info('---> ExportOption ', result.exportOptions)
                 next(null, result);
             });
         }
