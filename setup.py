@@ -121,7 +121,7 @@ class BuildExtension(setuptools.Command):
             os.makedirs(os.path.dirname(manifest_staging_path))
         with open(MANIFEST_PATH, 'r') as f_src:
             with open(manifest_staging_path, 'w') as f_dst:
-                f_dst.write(f_src.read().replace('VERSION', VERSION))
+                f_dst.write(f_src.read().replace('{{FTRACK_CONNECT_SPARK_ADOBE_EXTENSION_VERSION}}', VERSION))
 
         extension_output_path = os.path.join(BUILD_PATH, 'ftrack_connect_adobe_{}.zxp'.format(VERSION))
 
@@ -130,10 +130,10 @@ class BuildExtension(setuptools.Command):
         with open(UPDATE_PATH, 'r') as f_src:
             with open(update_staging_path, 'w') as f_dst:
                 f_dst.write(f_src.read().
-                            replace('<%= bundle.version %>', VERSION).
-                            replace('<%= download_url %>', os.path.basename(extension_output_path)).
-                            replace('<%= bundle.description %>', 'ftrack connect extension for Adobe Creative Cloud.')
-                            )
+                    replace('<%= bundle.version %>', VERSION).
+                    replace('<%= download_url %>', os.path.basename(extension_output_path)).
+                    replace('<%= bundle.description %>', 'ftrack connect extension for Adobe Creative Cloud.')
+                )
 
         # Create and sign extension
         if os.path.exists(extension_output_path):
@@ -144,12 +144,13 @@ class BuildExtension(setuptools.Command):
             STAGING_PATH,
             extension_output_path,
             CERTIFICATE_PATH,
-            '{}'.format(os.environ['FTRACK_ADOBE_CERTIFICATE_PASSWORD'])])
+            '{}'.format(os.environ['FTRACK_ADOBE_CERTIFICATE_PASSWORD'])
+        ])
         result.communicate()
         if result.returncode!=0:
             raise Exception('Could not sign and build extension!')
 
-        print 'Result: ' + extension_output_path
+        print('Result: ' + extension_output_path)
 
 # Configuration.
 setup(
@@ -178,9 +179,5 @@ setup(
     cmdclass={
         'build_extension': BuildExtension
     },
-    dependency_links=[
-        'https://bitbucket.org/ftrack/lowdown/get/0.1.0.zip'
-        '#egg=lowdown-0.1.0'
-    ],
     zip_safe=False
 )

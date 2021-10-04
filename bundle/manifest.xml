@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <ExtensionManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   ExtensionBundleId="com.ftrack.connect.adobe"
-  ExtensionBundleVersion="VERSION" Version="5.0">
+  ExtensionBundleVersion="{{FTRACK_CONNECT_SPARK_ADOBE_EXTENSION_VERSION}}" Version="5.0">
     <Author><![CDATA[ftrack]]></Author>
   <ExtensionList>
-    <Extension Id="com.ftrack.connect.adobe.panel" Version="VERSION" />
+    <Extension Id="com.ftrack.connect.adobe.panel" Version="{{FTRACK_CONNECT_SPARK_ADOBE_EXTENSION_VERSION}}" />
   </ExtensionList>
   <ExecutionEnvironment>
     <HostList>
