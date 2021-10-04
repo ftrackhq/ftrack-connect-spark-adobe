@@ -105,7 +105,7 @@ FTX.baseExport = (function () {
     function saveJpegThumbnailFileIn(directory, options){
         // Resize image to max 4k x 4k.
         resizeImageFit(4096, 4096);
-        filepath = saveJpegAsFileIn(directory, options)
+        var filePath = saveJpegAsFileIn(directory, options)
         return filePath;
 
     }
