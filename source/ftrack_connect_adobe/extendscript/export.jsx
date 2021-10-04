@@ -56,6 +56,21 @@ FTX.baseExport = (function () {
         return saveAsFileIn(directory, new PhotoshopSaveOptions(), '.psd');
     }
 
+    function getPdfExportOptions(options) {
+        options = options || {};
+        var exportOptions = new PDFSaveOptions();
+        exportOptions.embedThumbnail = options.embedThumbnail || true;
+        exportOptions.embedColorProfile = options.embedColorProfile || true;
+        exportOptions.jpegQuality = options.jpegQuality || 12;
+        return exportOptions;
+    }
+
+    function getPngExportOptions(options){
+        options = options || {};
+        var exportOptions = new PngSaveOptions();
+        return exportOptions;     
+    }
+
     function getTiffExportOptions(options){
         options = options || {};
         var exportOptions = new TiffSaveOptions();
@@ -139,8 +154,14 @@ FTX.baseExport = (function () {
         getDocumentName: getDocumentName,
         getDocumentMetadata: getDocumentMetadata,
         saveDocumentAsFileIn: saveDocumentAsFileIn,
+        
+        /** export options */
         getTiffExportOptions: getTiffExportOptions,
         getJpegExportOptions: getJpegExportOptions,
+        getPngExportOptions: getPngExportOptions,
+        getPdfExportOptions: getPdfExportOptions,
+
+        /** save functions */
         saveJpegAsFileIn: saveJpegAsFileIn,
         saveTiffAsFileIn: saveTiffAsFileIn,
         resizeImageFit: resizeImageFit,
@@ -159,7 +180,6 @@ FTX.photoshopExport = (function(){
         }
         var formats = [
             { label: 'Photoshop (psd)', value: 'psd' },
-            { label: 'Photoshop Large (psb)', value: 'psb' },
             { label: 'Photoshop PDF (pdf)', value: 'pdf' },
             { label: 'JPEG', value: 'jpg' },
             { label: 'PNG', value: 'png' },
