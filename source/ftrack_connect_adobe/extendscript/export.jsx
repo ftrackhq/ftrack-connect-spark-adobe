@@ -56,6 +56,14 @@ FTX.baseExport = (function () {
         return saveAsFileIn(directory, new PhotoshopSaveOptions(), '.psd');
     }
 
+    function getTiffExportOptions(options){
+        options = options || {};
+        var exportOptions = new TiffSaveOptions();
+        exportOptions.transparency = options.transparency || true
+        exportOptions.embedColorProfile = options.embedColorProfile || true;
+        return exportOptions;       
+    }
+
     function getJpegExportOptions(options) {
         options = options || {};
         var exportOptions = new JPEGSaveOptions();
@@ -73,6 +81,16 @@ FTX.baseExport = (function () {
         // Resize image to max 4k x 4k.
         resizeImageFit(4096, 4096);
         var filePath = saveAsFileIn(directory, getJpegExportOptions(options), '.jpg');
+
+        // Restore state
+        app.activeDocument.activeHistoryState = originalHistoryState;
+
+        return filePath;
+    }
+
+    function saveTiffAsFileIn(directory, options) {
+        var originalHistoryState = app.activeDocument.activeHistoryState;
+        var filePath = saveAsFileIn(directory, getTiffExportOptions(options), '.tif');
 
         // Restore state
         app.activeDocument.activeHistoryState = originalHistoryState;
@@ -121,8 +139,10 @@ FTX.baseExport = (function () {
         getDocumentName: getDocumentName,
         getDocumentMetadata: getDocumentMetadata,
         saveDocumentAsFileIn: saveDocumentAsFileIn,
+        getTiffExportOptions: getTiffExportOptions,
         getJpegExportOptions: getJpegExportOptions,
         saveJpegAsFileIn: saveJpegAsFileIn,
+        saveTiffAsFileIn: saveTiffAsFileIn,
         resizeImageFit: resizeImageFit,
     };
 }());
