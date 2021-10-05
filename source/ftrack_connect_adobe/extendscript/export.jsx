@@ -57,31 +57,12 @@ FTX.baseExport = (function () {
     }
 
     /** file options */
-    function getPdfExportOptions(options) {
-        options = options || {};
-        var exportOptions = new PDFSaveOptions();
-
-        exportOptions.PDFCompatibility = PDFCompatibility.PDF16;
-        //
-        // exportOptions.colorConversion = false;
-        // exportOptions.embedColorProfile = true;
-        // exportOptions.profileInclusionPolicy = false;
-        // // exportOptions.encoding = PDFEncoding.PDFZIP;
-        // // exportOptions.downSample = PDFResample.PDFBICUBIC;
-        // exportOptions.PDFStandard = PDFStandard.PDFX32003;
-        //
-        // // saveOpts.downSampleSize = 200;
-        // // saveOpts.downSampleSizeLimit = 250;
-        // exportOptions.layers = false;
-        // exportOptions.jpegQuality = 8;
-        // // exportOptions.embedThumbnail = options.embedThumbnail || true;
-        // // exportOptions.embedColorProfile = options.embedColorProfile || true;
-        // // exportOptions.jpegQuality = options.jpegQuality || 12;
-        // // exportOptions.compatibility = PDFCompatibility.ACROBAT6;
-        // // exportOptions.generateThumbnails = options.generateThumbnails || true;
-        // // exportOptions.preseveEditability = options.preseveEditability  || true;
-        return exportOptions;
-    }
+    // function getPdfExportOptions(options) {
+    //     options = options || {};
+    //     var exportOptions = new PDFSaveOptions();
+    //     // exportOptions.PDFCompatibility = PDFCompatibility.PDF15;
+    //     return exportOptions;
+    // }
 
     function getPngExportOptions(options){
         options = options || {};
@@ -134,16 +115,9 @@ FTX.baseExport = (function () {
         return saveAsFileIn(directory, getPngExportOptions(options), '.png');
     }
 
-    function savePdfAsFileIn(directory) {
-        return saveAsFileIn(directory, getPdfExportOptions(options), '.pdf')
-        // var file = getExportFile(directory, '.pdf');
-        // var options = new PDFSaveOptions();
-        // options.compatibility = PDFCompatibility.ACROBAT6;
-        // options.generateThumbnails = true;
-        // options.preseveEditability = true;
-        // app.activeDocument.saveAs(file, options);
-        // return file.fsName;
-    }
+    // function savePdfAsFileIn(directory) {
+    //     return saveAsFileIn(directory, getPdfExportOptions(options), '.pdf')
+    // }
 
     /** Resize image to be contained within *maxWidth* and *maxHeight*. */
     function resizeImageFit(maxWidth, maxHeight) {
@@ -191,14 +165,14 @@ FTX.baseExport = (function () {
         getJpegExportOptions: getJpegExportOptions,
         getTiffExportOptions: getTiffExportOptions,
         getPngExportOptions: getPngExportOptions,
-        getPdfExportOptions: getPdfExportOptions,
+        // getPdfExportOptions: getPdfExportOptions,
 
         /** save functions */
         saveJpegAsFileIn: saveJpegAsFileIn,
         saveRawJpegAsFileIn: saveRawJpegAsFileIn,
         saveTiffAsFileIn: saveTiffAsFileIn,
         savePngAsFileIn: savePngAsFileIn,
-        savePdfAsFileIn: savePdfAsFileIn,
+        // savePdfAsFileIn: savePdfAsFileIn,
         resizeImageFit: resizeImageFit,
     };
 }());
@@ -215,7 +189,6 @@ FTX.photoshopExport = (function(){
         }
         var formats = [
             { label: 'Photoshop (psd)', value: 'psd' },
-            { label: 'Photoshop PDF (pdf)', value: 'pdf' },
             { label: 'JPEG', value: 'jpg' },
             { label: 'PNG', value: 'png' },
             { label: 'TIFF', value: 'tif' },

@@ -587,9 +587,9 @@ FT.exporter = (function(){
                         png: {
                             method: 'savePngAsFileIn',
                         },
-                        pdf: {
-                            method: 'savePdfAsFileIn',
-                        },
+                        // pdf: {
+                        //     method: 'savePdfAsFileIn',
+                        // },
                     }
 
                     var format = formatMap[saveFormat] || formatMap.psd;
