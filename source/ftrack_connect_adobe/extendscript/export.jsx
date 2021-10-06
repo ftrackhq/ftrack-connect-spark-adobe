@@ -193,12 +193,6 @@ FTX.photoshopExport = (function(){
             { label: 'PNG', value: 'png' },
             { label: 'TIFF', value: 'tif' },
         ];
-        for(var i = 0; i < formats.length; i++) {
-            if (ext == formats[i].value) {
-                formats = [formats[i]].concat(formats.slice(1));
-                break;
-            }
-        }
 
         return JSON.stringify({
             component_name: basename || 'photoshop-document',
