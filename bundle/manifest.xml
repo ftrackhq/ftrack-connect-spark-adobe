@@ -57,12 +57,12 @@
                 </MinSize>
             </Geometry>
           <Icons>
-            <Icon Type="Normal">./client/image/icon/icon_light.png</Icon>
-            <Icon Type="RollOver">./client/image/icon/icon_light_hover.png</Icon>
-            <Icon Type="Disabled">./client/image/icon/icon_light_disabled.png</Icon>
-            <Icon Type="DarkNormal">./client/image/icon/icon_dark.png</Icon>
-            <Icon Type="DarkRollOver">./client/image/icon/icon_dark_hover.png</Icon>
-            <Icon Type="DarkDisabled">./client/image/icon/icon_dark_disabled.png</Icon>
+            <Icon Type="Normal">./ftrack_connect_adobe/image/icon/icon_light.png</Icon>
+            <Icon Type="RollOver">./ftrack_connect_adobe/image/icon/icon_light_hover.png</Icon>
+            <Icon Type="Disabled">./ftrack_connect_adobe/image/icon/icon_light_disabled.png</Icon>
+            <Icon Type="DarkNormal">./ftrack_connect_adobe/image/icon/icon_dark.png</Icon>
+            <Icon Type="DarkRollOver">./ftrack_connect_adobe/image/icon/icon_dark_hover.png</Icon>
+            <Icon Type="DarkDisabled">./ftrack_connect_adobe/image/icon/icon_dark_disabled.png</Icon>
           </Icons>
         </UI>
       </DispatchInfo>
