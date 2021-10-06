@@ -198,10 +198,10 @@ FTX.photoshopExport = (function(){
                 formats = [formats[i]].concat(formats.slice(1));
                 break;
             }
-            if (i == formats.length - 1 && ext) {
-                formats = [{label: ext, value: ext}].concat(formats);
-                break;
-            }
+            // if (i == formats.length - 1 && ext) {
+            //     formats = [{label: ext, value: ext}].concat(formats);
+            //     break;
+            // }
         }
 
         return JSON.stringify({
