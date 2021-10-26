@@ -41,7 +41,9 @@ FT.main = (function(){
                 csInterface.evalScript('$._ext.evalFiles("' + extensionRoot + '")', function (result) {
                     logger.info('Loaded extendscript files:', result);
                     csInterface.evalScript('$.getenv("FTRACK_CONNECT_EVENT")', function (result) {
-                        env['FTRACK_CONNECT_EVENT'] = result;
+                        if (result != 'null') {
+                            env['FTRACK_CONNECT_EVENT'] = result;
+                        }
                         initialized = true;
                     });
                 });
