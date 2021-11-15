@@ -1,15 +1,15 @@
 // :copyright: Copyright (c) 2015 ftrack
 
-FTX.export = (function(){
+FTX.baseExport = (function () {
 
     /** Return a sanitized version of *value* for use as a file name. */
     function sanitizeFileName(value) {
         return (value || 'unknown').replace(/[^a-z0-9_.-]/gi, '_').toLowerCase();
     }
 
-    /** 
-     * Return file name with *fileExtension*. 
-     * 
+    /**
+     * Return file name with *fileExtension*.
+     *
      * If *fileName* already has an extension replace it, otherwise add it.
      */
     function replaceExtension(fileName, fileExtension) {
@@ -31,7 +31,7 @@ FTX.export = (function(){
         }
     }
 
-    /** 
+    /**
      * Save document as a file in *directory* using *options*.
      *
      * *directory* should end with a separator.
@@ -56,6 +56,28 @@ FTX.export = (function(){
         return saveAsFileIn(directory, new PhotoshopSaveOptions(), '.psd');
     }
 
+    /** file options */
+    // function getPdfExportOptions(options) {
+    //     options = options || {};
+    //     var exportOptions = new PDFSaveOptions();
+    //     // exportOptions.PDFCompatibility = PDFCompatibility.PDF15;
+    //     return exportOptions;
+    // }
+
+    function getPngExportOptions(options){
+        options = options || {};
+        var exportOptions = new PNGSaveOptions();
+        return exportOptions;     
+    }
+
+    function getTiffExportOptions(options){
+        options = options || {};
+        var exportOptions = new TiffSaveOptions();
+        exportOptions.transparency = options.transparency || true
+        exportOptions.embedColorProfile = options.embedColorProfile || true;
+        return exportOptions;       
+    }
+
     function getJpegExportOptions(options) {
         options = options || {};
         var exportOptions = new JPEGSaveOptions();
@@ -66,19 +88,36 @@ FTX.export = (function(){
         return exportOptions;
     }
 
-    /** Save jpeg image in *directory* */
-    function saveJpegAsFileIn(directory, options) {
-        var originalHistoryState = app.activeDocument.activeHistoryState;
 
+    /** Save resized jpeg image in *directory* */
+    function saveJpegAsFileIn(directory, options) {
+        // Save state
+        var originalHistoryState = app.activeDocument.activeHistoryState;
         // Resize image to max 4k x 4k.
         resizeImageFit(4096, 4096);
         var filePath = saveAsFileIn(directory, getJpegExportOptions(options), '.jpg');
-
         // Restore state
         app.activeDocument.activeHistoryState = originalHistoryState;
-
         return filePath;
     }
+
+    /** Save jpeg image in *directory* */
+    function saveRawJpegAsFileIn(directory, options) {
+        return saveAsFileIn(directory, getJpegExportOptions(options), '.jpg');
+    }
+
+    /** Save tiff image in *directory* */
+    function saveTiffAsFileIn(directory, options) {
+        return saveAsFileIn(directory, getTiffExportOptions(options), '.tif');
+    }
+
+    function savePngAsFileIn(directory, options) {
+        return saveAsFileIn(directory, getPngExportOptions(options), '.png');
+    }
+
+    // function savePdfAsFileIn(directory) {
+    //     return saveAsFileIn(directory, getPdfExportOptions(options), '.pdf')
+    // }
 
     /** Resize image to be contained within *maxWidth* and *maxHeight*. */
     function resizeImageFit(maxWidth, maxHeight) {
@@ -121,12 +160,59 @@ FTX.export = (function(){
         getDocumentName: getDocumentName,
         getDocumentMetadata: getDocumentMetadata,
         saveDocumentAsFileIn: saveDocumentAsFileIn,
+        
+        /** export options */
         getJpegExportOptions: getJpegExportOptions,
+        getTiffExportOptions: getTiffExportOptions,
+        getPngExportOptions: getPngExportOptions,
+        // getPdfExportOptions: getPdfExportOptions,
+
+        /** save functions */
         saveJpegAsFileIn: saveJpegAsFileIn,
-        resizeImageFit: resizeImageFit
+        saveRawJpegAsFileIn: saveRawJpegAsFileIn,
+        saveTiffAsFileIn: saveTiffAsFileIn,
+        savePngAsFileIn: savePngAsFileIn,
+        // savePdfAsFileIn: savePdfAsFileIn,
+        resizeImageFit: resizeImageFit,
     };
 }());
 
+FTX.photoshopExport = (function(){
+    function getExportSettingOptions() {
+        var name = app.activeDocument && app.activeDocument.name;
+        var ext = '';
+        var basename = name;
+        if (name.indexOf('.') >= 0) {
+            const split = name.split('.');
+            ext = split[1];
+            basename = split[0];
+        }
+        var formats = [
+            { label: 'Photoshop (psd)', value: 'psd' },
+            { label: 'JPEG', value: 'jpg' },
+            { label: 'PNG', value: 'png' },
+            { label: 'TIFF', value: 'tif' },
+        ];
+    
+        /** if an extension is present, and available, set it as first and default option */
+        for(var i = 0; i < formats.length; i++) {
+            if (ext == formats[i].value) {
+                var item = formats.splice(i, 1)
+                formats.splice(0, 0, item[0])
+                break;
+            }
+        }
+
+        return JSON.stringify({
+            component_name: basename || 'photoshop-document',
+            formats: formats,
+        });
+    }
+
+    return {
+        getExportSettingOptions: getExportSettingOptions,
+    };
+}());
 
 FTX.illustratorExport = (function(){
     /** Return File in *directory* with *fileExtension*. */
@@ -190,9 +276,9 @@ FTX.illustratorExport = (function(){
 
 
 FTX.premiereExport = (function() {
-    /** 
+    /**
      * Send CSXS Event of *type* with a JSON-encoded payload of *data*.
-     * 
+     *
      * Used for communication with CEF/JavaScript using CSInterface.
      */
     function sendEvent(type, data) {
@@ -232,14 +318,14 @@ FTX.premiereExport = (function() {
         return app.project && app.project.name || null;
     }
 
-    /** 
+    /**
      * Render the currently active sequence using Adobe Media Encoder.
      *
      * Save the encoded sequence under *directoryPath*
      * *presetPath* should be a file path to an export preset.
-     * *sequenceRangeName* controls which part of the sequence to encode and can 
+     * *sequenceRangeName* controls which part of the sequence to encode and can
      * be one of:
-     * 
+     *
      *     - entire
      *     - inout
      *     - workarea
@@ -290,7 +376,7 @@ FTX.premiereExport = (function() {
         });
     }
 
-    /** 
+    /**
      * Save the currently active frame as an JPEG in *directory*.
      */
     function saveActiveFrame(directory) {
@@ -302,8 +388,8 @@ FTX.premiereExport = (function() {
         return filePath;
     }
 
-    /** 
-     * Save as project as a file in *directory*. 
+    /**
+     * Save as project as a file in *directory*.
      *
      * *directory* should end with a separator.
      */
@@ -355,8 +441,8 @@ FTX.afterEffectsExport = (function() {
         );
     }
 
-    /** 
-     * Save project as a file in *directory*. 
+    /**
+     * Save project as a file in *directory*.
      *
      * *directory* should end with a separator.
      */
@@ -373,7 +459,7 @@ FTX.afterEffectsExport = (function() {
         return filePath;
     }
 
-    /** 
+    /**
      * Return all composition names in current project.
      */
     function getCompositionNames() {
@@ -392,7 +478,7 @@ FTX.afterEffectsExport = (function() {
         return compositionNames;
     }
 
-    /** 
+    /**
      * Return first composition in project named *compositionName*
      *
      * If *compositionName* is not specified, return first composition.
@@ -414,7 +500,7 @@ FTX.afterEffectsExport = (function() {
         return null;
     }
 
-    /** 
+    /**
      * Save the currently active frame as an PNG in *directory*.
      */
     function saveActiveFrame(directory, compositionName) {
@@ -454,11 +540,11 @@ FTX.afterEffectsExport = (function() {
         return directory;
     }
 
-    /** 
+    /**
      * Return JSON-encoded object with export settings.
      *
      * Fetches output modules and render settings by creating a temporary
-     * composition and render queue item, reading the template names and then 
+     * composition and render queue item, reading the template names and then
      * removing the temporary items.
      */
     function getExportSettingOptions() {
@@ -493,4 +579,19 @@ FTX.afterEffectsExport = (function() {
         hasActiveProject: hasActiveProject,
         getProjectName: getProjectName
     };
+}());
+
+FTX.export = (function() {
+    var methods = FTX.baseExport;
+    var overrides = {
+        'AEFT': FTX.afterEffectsExport,
+        'PHSP': FTX.photoshopExport,
+        'PHXS': FTX.photoshopExport,
+    }[FTX.getAppId()];
+
+    for (var k in overrides) {
+        methods[k] = overrides[k];
+    }
+
+    return methods;
 }());

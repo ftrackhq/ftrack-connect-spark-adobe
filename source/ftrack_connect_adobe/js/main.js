@@ -14,6 +14,7 @@ FT.main = (function(){
     var logger = require('ftrack-connect-spark-adobe/logger');
     var initialized = false;
     var csInterface = window.csInterface;
+    var env = {};
 
     /**
      * Load JSX file into the scripting context of the product. All the jsx files in 
@@ -39,7 +40,12 @@ FT.main = (function(){
                 var extensionRoot = csInterface.getSystemPath(SystemPath.EXTENSION) + "/ftrack_connect_adobe/extendscript/";
                 csInterface.evalScript('$._ext.evalFiles("' + extensionRoot + '")', function (result) {
                     logger.info('Loaded extendscript files:', result);
-                    initialized = true;
+                    csInterface.evalScript('$.getenv("FTRACK_CONNECT_EVENT")', function (result) {
+                        if (result != 'null') {
+                            env['FTRACK_CONNECT_EVENT'] = result;
+                        }
+                        initialized = true;
+                    });
                 });
             });
         });
@@ -58,7 +64,8 @@ FT.main = (function(){
     return {
         getHostEnvironment: getHostEnvironment,
         loadExtendscript: loadExtendscript,
-        initialized: initialized
+        initialized: initialized,
+        env: env,
     };
 }());
 
