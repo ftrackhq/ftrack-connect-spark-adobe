@@ -736,26 +736,12 @@ FT.exporter = (function(){
             next(null, result);
         });
 
-        if (APP_ID === 'AEFT' || APP_ID === 'PHSP' || APP_ID === 'PHXS') {
-            steps.push(getExportSettingOptions);
-            steps.push(function (exportOptions, next) {
-                result.exportOptions = JSON.parse(exportOptions);
-                logger.info('---> ExportOption ', result.exportOptions)
-                next(null, result);
-            });
-        }
-
-        if (APP_ID === 'ILST') {
-            result.exportOptions = {
-                formats: [
-                    { label: 'Adobe Illustrator (ai)', value: 'ai' },
-                    { label: 'Illustrator EPS (eps)', value: 'eps' },
-                    { label: 'Adobe PDF (pdf)', value: 'pdf' },
-                    { label: 'SVG (svg)', value: 'svg' },
-                ]
-            }
-        }
-
+        steps.push(getExportSettingOptions);
+        steps.push(function (exportOptions, next) {
+            result.exportOptions = JSON.parse(exportOptions);
+            logger.info('---> ExportOption ', result.exportOptions)
+            next(null, result);
+        });
 
         if (options.metadata) {
             steps.push(function (result, next) {

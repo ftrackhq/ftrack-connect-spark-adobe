@@ -1,5 +1,21 @@
 // :copyright: Copyright (c) 2015 ftrack
 
+function composeClass(base, derived) {
+    /** Fake class with super. */
+    var result = {};
+    for (var k in base) {
+        result[k] = base[k];
+    }
+    for (var k in derived) {
+        if (k in result) {
+            // not best approach but a way to go
+            result[k + '_super'] = result[k];
+        }
+        result[k] = derived[k];
+    }
+    return result;
+}
+
 FTX.baseExport = (function () {
 
     /** Return a sanitized version of *value* for use as a file name. */
@@ -48,7 +64,7 @@ FTX.baseExport = (function () {
     }
 
     function getDocumentName() {
-        return app.activeDocument && app.activeDocument.name || null;
+        return app.documents.length && app.activeDocument.name || null;
     }
 
     /** Save document in *directory* */
@@ -67,7 +83,7 @@ FTX.baseExport = (function () {
     function getPngExportOptions(options){
         options = options || {};
         var exportOptions = new PNGSaveOptions();
-        return exportOptions;     
+        return exportOptions;
     }
 
     function getTiffExportOptions(options){
@@ -75,7 +91,7 @@ FTX.baseExport = (function () {
         var exportOptions = new TiffSaveOptions();
         exportOptions.transparency = options.transparency || true
         exportOptions.embedColorProfile = options.embedColorProfile || true;
-        return exportOptions;       
+        return exportOptions;
     }
 
     function getJpegExportOptions(options) {
@@ -152,6 +168,35 @@ FTX.baseExport = (function () {
         return encodedResult;
     }
 
+    function getExportSettingOptions(rawResult) {
+        var ext;
+        var name = this.getDocumentName() || this.defaultComponentName;
+        if (name && name.indexOf('.') >= 0) {
+            const split = name.split('.');
+            ext = split[1];
+            name = split[0];
+        }
+
+        var formats = (this.exportFormats || []).concat([]);  // copy
+        /** if an extension is present, and available, set it as first and default option */
+        for(var i = 0; i < formats.length; i++) {
+            if (ext == formats[i].value) {
+                var item = formats.splice(i, 1)
+                formats.splice(0, 0, item[0])
+                break;
+            }
+        }
+
+        var data = {
+            component_name: name,
+            formats: formats,
+        };
+        if (!rawResult) {
+            data = JSON.stringify(data);
+        }
+        return data;
+    }
+
     return {
         sanitizeFileName: sanitizeFileName,
         replaceExtension: replaceExtension,
@@ -160,7 +205,7 @@ FTX.baseExport = (function () {
         getDocumentName: getDocumentName,
         getDocumentMetadata: getDocumentMetadata,
         saveDocumentAsFileIn: saveDocumentAsFileIn,
-        
+
         /** export options */
         getJpegExportOptions: getJpegExportOptions,
         getTiffExportOptions: getTiffExportOptions,
@@ -174,44 +219,20 @@ FTX.baseExport = (function () {
         savePngAsFileIn: savePngAsFileIn,
         // savePdfAsFileIn: savePdfAsFileIn,
         resizeImageFit: resizeImageFit,
+        getExportSettingOptions: getExportSettingOptions,
     };
 }());
 
 FTX.photoshopExport = (function(){
-    function getExportSettingOptions() {
-        var name = app.activeDocument && app.activeDocument.name;
-        var ext = '';
-        var basename = name;
-        if (name.indexOf('.') >= 0) {
-            const split = name.split('.');
-            ext = split[1];
-            basename = split[0];
-        }
-        var formats = [
+    return composeClass(FTX.baseExport, {
+        defaultComponentName: 'photoshop-document',
+        exportFormats: [
             { label: 'Photoshop (psd)', value: 'psd' },
             { label: 'JPEG', value: 'jpg' },
             { label: 'PNG', value: 'png' },
             { label: 'TIFF', value: 'tif' },
-        ];
-    
-        /** if an extension is present, and available, set it as first and default option */
-        for(var i = 0; i < formats.length; i++) {
-            if (ext == formats[i].value) {
-                var item = formats.splice(i, 1)
-                formats.splice(0, 0, item[0])
-                break;
-            }
-        }
-
-        return JSON.stringify({
-            component_name: basename || 'photoshop-document',
-            formats: formats,
-        });
-    }
-
-    return {
-        getExportSettingOptions: getExportSettingOptions,
-    };
+        ],
+    });
 }());
 
 FTX.illustratorExport = (function(){
@@ -265,13 +286,20 @@ FTX.illustratorExport = (function(){
         return file.fsName;
     }
 
-    return {
+    return composeClass(FTX.baseExport, {
         saveDocumentAsFileIn: saveDocumentAsFileIn,
         saveJpegAsFileIn: saveJpegAsFileIn,
         savePdfAsFileIn: savePdfAsFileIn,
         saveSvgAsFileIn: saveSvgAsFileIn,
         saveEpsAsFileIn: saveEpsAsFileIn,
-    };
+        defaultComponentName: 'illustrator-document',
+        exportFormats: [
+            { label: 'Adobe Illustrator (ai)', value: 'ai' },
+            { label: 'Illustrator EPS (eps)', value: 'eps' },
+            { label: 'Adobe PDF (pdf)', value: 'pdf' },
+            { label: 'SVG (svg)', value: 'svg' },
+        ],
+    });
 }());
 
 
@@ -416,14 +444,15 @@ FTX.premiereExport = (function() {
         return sequence !== null;
     }
 
-    return {
+    return composeClass(FTX.baseExport, {
+        getDocumentName: getProjectName,
         getProjectName: getProjectName,
         renderActiveSequence: renderActiveSequence,
         getSequenceMetadata: getSequenceMetadata,
         saveActiveFrame: saveActiveFrame,
         saveProject: saveProject,
         hasActiveSequence: hasActiveSequence
-    };
+    });
 }());
 
 
@@ -548,50 +577,38 @@ FTX.afterEffectsExport = (function() {
      * removing the temporary items.
      */
     function getExportSettingOptions() {
-        var compositionNames = [];
-        var renderSettings = [];
-        var outputModules = [];
-
+        var data = this.getExportSettingOptions_super(rawResult=true);
         if (app.project) {
-            compositionNames = getCompositionNames();
+            data.compositionNames = getCompositionNames();
             var composition = app.project.items.addComp('ftrack-connect-temporary-comp', 100, 100, 1, 1, 25);
             var renderQueue = app.project.renderQueue;
             var renderQueueItem = renderQueue.items.add(composition);
-            renderSettings = renderQueueItem.templates;
-            outputModules = renderQueueItem.outputModules[1].templates;
+            data.renderSettings = renderQueueItem.templates;
+            data.outputModules = renderQueueItem.outputModules[1].templates;
 
             renderQueueItem.remove();
             composition.remove();
         }
 
-        return JSON.stringify({
-            compositionNames: compositionNames,
-            renderSettings: renderSettings,
-            outputModules: outputModules
-        });
+        return JSON.stringify(data);
     }
 
-    return {
+    return composeClass(FTX.baseExport, {
+        getDocumentName: getProjectName,
         getExportSettingOptions: getExportSettingOptions,
         renderComposition: renderComposition,
         saveActiveFrame: saveActiveFrame,
         saveProject: saveProject,
         hasActiveProject: hasActiveProject,
         getProjectName: getProjectName
-    };
+    });
 }());
 
-FTX.export = (function() {
-    var methods = FTX.baseExport;
-    var overrides = {
-        'AEFT': FTX.afterEffectsExport,
-        'PHSP': FTX.photoshopExport,
-        'PHXS': FTX.photoshopExport,
-    }[FTX.getAppId()];
+FTX.export = {
+    'AEFT': FTX.afterEffectsExport,
+    'ILST': FTX.illustratorExport,
+    'PHSP': FTX.photoshopExport,
+    'PHXS': FTX.photoshopExport,
+    'PPRO': FTX.premiereExport,
+}[FTX.getAppId()];
 
-    for (var k in overrides) {
-        methods[k] = overrides[k];
-    }
-
-    return methods;
-}());
