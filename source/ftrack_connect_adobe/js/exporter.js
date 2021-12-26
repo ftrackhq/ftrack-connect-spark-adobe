@@ -712,7 +712,7 @@ FT.exporter = (function(){
 
     function getExportSettingOptions(value, next) {
         logger.info('Collecting export options.');
-        var extendScript = 'FTX.export.getExportSettingOptions()';
+        var extendScript = 'JSON.stringify(FTX.export.getExportSettingOptions())';
         csInterface.evalScript(extendScript, function (options) {
             logger.info(options);
             verifyReturnedValue(options, next);

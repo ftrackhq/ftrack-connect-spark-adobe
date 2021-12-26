@@ -169,7 +169,7 @@ FTX.baseExport = (function () {
         return encodedResult;
     }
 
-    function getExportSettingOptions(rawResult) {
+    function getExportSettingOptions() {
         var ext;
         var name = this.getDocumentName() || this.defaultComponentName;
         if (name && name.indexOf('.') >= 0) {
@@ -192,9 +192,6 @@ FTX.baseExport = (function () {
             component_name: name,
             formats: formats,
         };
-        if (!rawResult) {
-            data = JSON.stringify(data);
-        }
         return data;
     }
 
@@ -578,7 +575,7 @@ FTX.afterEffectsExport = (function() {
      * removing the temporary items.
      */
     function getExportSettingOptions() {
-        var data = this.super(rawResult=true);
+        var data = this.super();
         if (app.project) {
             data.compositionNames = getCompositionNames();
             var composition = app.project.items.addComp('ftrack-connect-temporary-comp', 100, 100, 1, 1, 25);
@@ -591,7 +588,7 @@ FTX.afterEffectsExport = (function() {
             composition.remove();
         }
 
-        return JSON.stringify(data);
+        return data;
     }
 
     return composeClass(FTX.baseExport, {
