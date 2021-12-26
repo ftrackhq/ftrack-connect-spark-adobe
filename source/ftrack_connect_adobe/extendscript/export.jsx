@@ -1,17 +1,18 @@
 // :copyright: Copyright (c) 2015 ftrack
 
 function composeClass(base, derived) {
-    /** Fake class with super. */
+    /** Make object with inheritance behavior and super(). */
     var result = {};
     for (var k in base) {
         result[k] = base[k];
     }
     for (var k in derived) {
-        if (k in result) {
-            // not best approach but a way to go
-            result[k + '_super'] = result[k];
-        }
         result[k] = derived[k];
+    }
+    /** Call super method of current caller. */
+    result.super = function () {
+        var name = $.stack.match(/[^\n]+\n[^\n]+\n$/m)[0].replace(/\((.+\n)+/, '');
+        return base[name].apply(result, arguments);
     }
     return result;
 }
@@ -577,7 +578,7 @@ FTX.afterEffectsExport = (function() {
      * removing the temporary items.
      */
     function getExportSettingOptions() {
-        var data = this.getExportSettingOptions_super(rawResult=true);
+        var data = this.super(rawResult=true);
         if (app.project) {
             data.compositionNames = getCompositionNames();
             var composition = app.project.items.addComp('ftrack-connect-temporary-comp', 100, 100, 1, 1, 25);
