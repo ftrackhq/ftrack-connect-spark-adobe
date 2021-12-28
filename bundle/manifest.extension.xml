@@ -5,6 +5,8 @@
             <ScriptPath>./<%= extension.script_path %></ScriptPath>
             <CEFCommandLine>
                 <Parameter>--enable-nodejs</Parameter>
+                <!-- following workaround access to global FT object from child iframe of development server https://github.com/Adobe-CEP/CEP-Resources/blob/master/CEP_11.x/Documentation/Issues.md#issue-2-cep-11-ui-issues-with-cross-site-iframes -->
+                <Parameter>--disable-site-isolation-trials</Parameter>
             </CEFCommandLine>
         </Resources>
         <Lifecycle>
