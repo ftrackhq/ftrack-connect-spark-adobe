@@ -458,7 +458,11 @@ FTX.afterEffectsExport = (function() {
 
     /** Return project name */
     function getProjectName() {
-        return app && app.project && app.project.file && app.project.file.name || 'Untitled Project';
+        if (app && app.project && app.project.file) {
+            // handle non latin characters
+            return decodeURIComponent(app.project.file.name);
+        }
+        return 'Untitled Project';
     }
 
     /** Return if has an active and saved project. */
