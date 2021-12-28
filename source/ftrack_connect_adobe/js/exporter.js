@@ -656,7 +656,7 @@ FT.exporter = (function(){
             steps.push(saveIllustratorPdf);
             steps.push(function (filePath, next) {
                 exportedFiles.push(
-                    { path: filePath, use: 'pdf-review' }
+                    { path: filePath, use: 'pdf-review', name: 'pdf-document' }
                 );
                 next(null, temporaryDirectory);
             });
