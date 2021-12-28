@@ -421,7 +421,7 @@ FT.exporter = (function(){
                 logger.debug('Exported project file', projectPath);
                 exportedFiles.push({
                     path: projectPath,
-                    name: 'premiere-project',
+                    name: options.component_name || 'premiere-project',
                     use: 'project_file'
                 });
                 next(null, temporaryDirectory);
@@ -435,7 +435,7 @@ FT.exporter = (function(){
                 logger.debug('Exported project file', projectPath);
                 exportedFiles.push({
                     path: projectPath,
-                    name: 'after-effects-project',
+                    name: options.component_name || 'after-effects-project',
                     use: 'project_file'
                 });
                 next(null, temporaryDirectory);
@@ -621,19 +621,15 @@ FT.exporter = (function(){
                 var formatMap = {
                     ai: {
                         method: 'saveDocumentAsFileIn',
-                        componentName: 'illustrator-document',
                     },
                     pdf: {
                         method: 'savePdfAsFileIn',
-                        componentName: 'pdf-document',
                     },
                     svg: {
                         method: 'saveSvgAsFileIn',
-                        componentName: 'svg-document',
                     },
                     eps: {
                         method: 'saveEpsAsFileIn',
-                        componentName: 'eps-document',
                     },
                 }
                 var format = formatMap[saveFormat] || formatMap.ai;
@@ -642,7 +638,11 @@ FT.exporter = (function(){
                 csInterface.evalScript(extendScript, function (filePath) {
                     verifyReturnedValue(filePath, function(error, filePath) {
                         exportedFiles.push(
-                            { path: filePath, use: 'delivery', name: format.componentName }
+                            {
+                                path: filePath,
+                                use: 'delivery',
+                                name: options.component_name,
+                            }
                         );
                         next(error, temporaryDirectory);
                     });
@@ -656,7 +656,7 @@ FT.exporter = (function(){
             steps.push(saveIllustratorPdf);
             steps.push(function (filePath, next) {
                 exportedFiles.push(
-                    { path: filePath, use: 'pdf-review' }
+                    { path: filePath, use: 'pdf-review', name: 'pdf-document' }
                 );
                 next(null, temporaryDirectory);
             });
@@ -712,7 +712,7 @@ FT.exporter = (function(){
 
     function getExportSettingOptions(value, next) {
         logger.info('Collecting export options.');
-        var extendScript = 'FTX.export.getExportSettingOptions()';
+        var extendScript = 'JSON.stringify(FTX.export.getExportSettingOptions())';
         csInterface.evalScript(extendScript, function (options) {
             logger.info(options);
             verifyReturnedValue(options, next);
@@ -736,26 +736,12 @@ FT.exporter = (function(){
             next(null, result);
         });
 
-        if (APP_ID === 'AEFT' || APP_ID === 'PHSP' || APP_ID === 'PHXS') {
-            steps.push(getExportSettingOptions);
-            steps.push(function (exportOptions, next) {
-                result.exportOptions = JSON.parse(exportOptions);
-                logger.info('---> ExportOption ', result.exportOptions)
-                next(null, result);
-            });
-        }
-
-        if (APP_ID === 'ILST') {
-            result.exportOptions = {
-                formats: [
-                    { label: 'Adobe Illustrator (ai)', value: 'ai' },
-                    { label: 'Illustrator EPS (eps)', value: 'eps' },
-                    { label: 'Adobe PDF (pdf)', value: 'pdf' },
-                    { label: 'SVG (svg)', value: 'svg' },
-                ]
-            }
-        }
-
+        steps.push(getExportSettingOptions);
+        steps.push(function (exportOptions, next) {
+            result.exportOptions = JSON.parse(exportOptions);
+            logger.info('---> ExportOption ', result.exportOptions)
+            next(null, result);
+        });
 
         if (options.metadata) {
             steps.push(function (result, next) {
