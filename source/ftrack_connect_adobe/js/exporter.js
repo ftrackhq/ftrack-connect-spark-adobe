@@ -421,7 +421,7 @@ FT.exporter = (function(){
                 logger.debug('Exported project file', projectPath);
                 exportedFiles.push({
                     path: projectPath,
-                    name: 'premiere-project',
+                    name: options.component_name || 'premiere-project',
                     use: 'project_file'
                 });
                 next(null, temporaryDirectory);
@@ -435,7 +435,7 @@ FT.exporter = (function(){
                 logger.debug('Exported project file', projectPath);
                 exportedFiles.push({
                     path: projectPath,
-                    name: 'after-effects-project',
+                    name: options.component_name || 'after-effects-project',
                     use: 'project_file'
                 });
                 next(null, temporaryDirectory);
@@ -621,19 +621,15 @@ FT.exporter = (function(){
                 var formatMap = {
                     ai: {
                         method: 'saveDocumentAsFileIn',
-                        componentName: 'illustrator-document',
                     },
                     pdf: {
                         method: 'savePdfAsFileIn',
-                        componentName: 'pdf-document',
                     },
                     svg: {
                         method: 'saveSvgAsFileIn',
-                        componentName: 'svg-document',
                     },
                     eps: {
                         method: 'saveEpsAsFileIn',
-                        componentName: 'eps-document',
                     },
                 }
                 var format = formatMap[saveFormat] || formatMap.ai;
@@ -642,7 +638,11 @@ FT.exporter = (function(){
                 csInterface.evalScript(extendScript, function (filePath) {
                     verifyReturnedValue(filePath, function(error, filePath) {
                         exportedFiles.push(
-                            { path: filePath, use: 'delivery', name: format.componentName }
+                            {
+                                path: filePath,
+                                use: 'delivery',
+                                name: options.component_name,
+                            }
                         );
                         next(error, temporaryDirectory);
                     });
