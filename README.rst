@@ -9,7 +9,7 @@ Documentation
 *************
 
 Full documentation, including installation and setup guides, can be found at
-http://ftrack-connect-spark-adobe.rtd.ftrack.com/en/stable/
+https://ftrack-connect-spark-adobe.readthedocs.io/en/latest/
 
 Setting up node environment
 ===========================
