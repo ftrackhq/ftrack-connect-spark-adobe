@@ -70,14 +70,14 @@ Building (All platforms)
 Preparations
 ------------
 
-1. Prepare ftrack-connect-spark by checking it out.
+1. Prepare `ftrack-connect-spark <git clone git@bitbucket.org:ftrack/ftrack-connect-spark.git>`_ by checking it out.
 2. Install yarn (MacOS: brew install yarn && npm install webpack) and run::
 
     npm install
     yarn dist
     yarn link
 
-3. Go back to this repository and run::
+3. Go back to ftrack-connect-spark-adobe repository checkout folder and run::
 
     yarn link ftrack-connect-spark
 
