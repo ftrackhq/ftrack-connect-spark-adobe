@@ -25,17 +25,20 @@ Download and install ftrack Connect for your platform at
 Open Connect and sign in with your company's ftrack URL, e.g.
 <company-url>.ftrackapp.com.
 
-Adobe launchers should show up after the login procedure.
+Adobe launchers should show up after the login procedure, from here you'll be able to pick the version to start.
 
 .. figure:: /image/connect_adobe_integrations.png
    :align: center
 
-.. note::
+.. warning::
+
+    This is required for the integration to work properly.
 
     If this is the first time you use ftrack and Connect you will be asked to
     configure a Storage scenario to let ftrack now how to publish your files.
     See :ref:`ftrack:administering/configure_storage_scenario` for more
     information.
+
 
 
 
