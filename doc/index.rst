@@ -15,6 +15,7 @@ ftrack connect integration for Adobe Creative Cloud applications.
     premiere/index
     photoshop/index
     after_effects/index
+    illustrator/index
     using/index
     manual_installation
     release/index
