@@ -7,6 +7,10 @@
 Illustrator
 ***********
 
+.. figure:: /image/illustrator.png
+   :align: center
+
+
 .. toctree::
     :maxdepth: 1
 

@@ -7,6 +7,10 @@
 Premiere Pro
 ************
 
+.. figure:: /image/premiere.png
+   :align: center
+
+
 .. toctree::
     :maxdepth: 1
 

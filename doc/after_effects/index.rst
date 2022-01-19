@@ -7,6 +7,10 @@
 After Effects
 *************
 
+.. figure:: /image/after_effects.png
+   :align: center
+
+
 .. toctree::
     :maxdepth: 1
 
