@@ -10,6 +10,5 @@ After Effects
 .. toctree::
     :maxdepth: 1
 
-    quick_review
     publish
     import

@@ -36,7 +36,7 @@ Adobe launchers should show up after the login procedure, from here you'll be ab
 
     If this is the first time you use ftrack and Connect you will be asked to
     configure a Storage scenario to let ftrack now how to publish your files.
-    See :ref:`ftrack:administering/configure_storage_scenario` for more
+    See how to `configure storage scenario <https://help.ftrack.com/en/articles/1040436-configuring-file-storage>`_ for more
     information.
 
 
