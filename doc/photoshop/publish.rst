@@ -19,7 +19,7 @@ A variety of formats is available to chose from at publish time:
 * Photoshop (psd)
 * JPG
 * PNG
-* TIGG
+* TIFF
 
 The document will also be exported as JPEG image which can be viewed from the ftrack web interface.
 

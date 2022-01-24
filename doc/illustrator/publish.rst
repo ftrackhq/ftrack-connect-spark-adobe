@@ -16,10 +16,10 @@ that you can continue working on your local copy.
 
 A variety of formats is available to chose from at publish time:
 
-* Photoshop (psd)
-* JPG
-* PNG
-* TIGG
+* Adobe Illustrator (ai)
+* Illustrator EPS (eps)
+* Adobe PDF (pdf)
+* SVG (svg)
 
 The document will also be exported as JPEG image which can be viewed from the ftrack web interface.
 
