@@ -8,7 +8,8 @@ Illustrator
 ***********
 
 .. figure:: /image/illustrator.png
-   :align: center
+   :scale: 60%
+   :align: left
 
 
 .. toctree::

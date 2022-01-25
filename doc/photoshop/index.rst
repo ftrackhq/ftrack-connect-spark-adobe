@@ -8,7 +8,9 @@ Photoshop
 *********
 
 .. figure:: /image/photoshop.png
-   :align: center
+   :scale: 60%
+   :align: left
+
 
 
 .. toctree::

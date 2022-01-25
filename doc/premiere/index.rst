@@ -8,7 +8,9 @@ Premiere Pro
 ************
 
 .. figure:: /image/premiere.png
-   :align: center
+   :scale: 60%
+   :align: left
+
 
 
 .. toctree::

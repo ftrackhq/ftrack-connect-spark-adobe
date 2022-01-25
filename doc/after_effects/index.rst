@@ -8,7 +8,9 @@ After Effects
 *************
 
 .. figure:: /image/after_effects.png
-   :align: center
+   :scale: 60%
+   :align: left
+
 
 
 .. toctree::
