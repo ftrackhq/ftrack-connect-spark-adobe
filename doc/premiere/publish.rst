@@ -9,7 +9,7 @@ Publish your work
 
 .. warning::
 
-    `MediaEncoder <https://www.adobe.com/products/media-encoder.html>`
+    `MediaEncoder <https://www.adobe.com/products/media-encoder.html>`_
     needs to be installed in order to publish reviewables.
 
 The publish feature lets you publish your work to ftrack so that it can be
