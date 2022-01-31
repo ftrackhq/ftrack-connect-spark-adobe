@@ -7,6 +7,12 @@
 Photoshop
 *********
 
+.. figure:: /image/photoshop.png
+   :scale: 60%
+   :align: left
+
+
+
 .. toctree::
     :maxdepth: 1
 

@@ -7,6 +7,12 @@
 Premiere Pro
 ************
 
+.. figure:: /image/premiere.png
+   :scale: 60%
+   :align: left
+
+
+
 .. toctree::
     :maxdepth: 1
 
