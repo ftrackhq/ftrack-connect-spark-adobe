@@ -289,7 +289,7 @@ FT.exporter = (function(){
             var extension = path.extname(filePath);
             var basename = path.basename(filePath, extension);
 
-            // Assume frame numbers are at end of basename, 
+            // Assume frame numbers are at end of basename,
             // e.g. comp_00000.tif
             var fileNumberMatches = basename.match(/\d+$/) || [''];
             var firstFrame = fileNumberMatches[0];
@@ -321,7 +321,7 @@ FT.exporter = (function(){
      *         include delivery media in export
      *     review
      *         include reviewable media in export
-     *  
+     *
      */
     function exportMedia(options, callback) {
         logger.info('Exporting media', options);
@@ -421,7 +421,7 @@ FT.exporter = (function(){
                 logger.debug('Exported project file', projectPath);
                 exportedFiles.push({
                     path: projectPath,
-                    name: 'premiere-project',
+                    name: options.component_name || 'premiere-project',
                     use: 'project_file'
                 });
                 next(null, temporaryDirectory);
@@ -435,7 +435,7 @@ FT.exporter = (function(){
                 logger.debug('Exported project file', projectPath);
                 exportedFiles.push({
                     path: projectPath,
-                    name: 'after-effects-project',
+                    name: options.component_name || 'after-effects-project',
                     use: 'project_file'
                 });
                 next(null, temporaryDirectory);
@@ -564,17 +564,54 @@ FT.exporter = (function(){
 
         if (options.delivery && (APP_ID === 'PHSP' || APP_ID === 'PHXS')) {
             logger.debug('Including deliverable media');
-            steps.push(
-                saveDocument,
-                logStep('Saved document'),
-                verifyReturnedValue
+            steps.push((directoryPath, next) => {
+
+                    var saveFormat = options.save_as_format || 'psd';
+                    logger.debug('Saving document in format', format);
+                    var formatMap = {
+                        psd: {
+                            method: 'saveDocumentAsFileIn',
+                        },
+                        jpg: {
+                            method: 'saveRawJpegAsFileIn',
+                        },
+                        jpeg: {
+                            method: 'saveRawJpegAsFileIn',
+                        },
+                        tif: {
+                            method: 'saveTiffAsFileIn',
+                        },
+                        tiff: {
+                            method: 'saveTiffAsFileIn',
+                        },
+                        png: {
+                            method: 'savePngAsFileIn',
+                        },
+                        // pdf: {
+                        //     method: 'savePdfAsFileIn',
+                        // },
+                    }
+
+                    var format = formatMap[saveFormat] || formatMap.psd;
+                    var extendScript = 'FTX.export.' + format.method + '(\'' + directoryPath + '\')';
+
+                    logger.info('Running deliverable script: ', extendScript);
+
+                    csInterface.evalScript(extendScript, function (filePath) {
+                        logger.info('Ready to deliver: ', filePath);
+                        verifyReturnedValue(filePath, function (error, filePath) {
+                            exportedFiles.push(
+                                {
+                                    path: filePath,
+                                    use: 'delivery',
+                                    name: options.component_name,
+                                }
+                            );
+                            next(error, temporaryDirectory);
+                        });
+                    });
+                }
             );
-            steps.push(function (filePath, next) {
-                exportedFiles.push(
-                    { path: filePath, use: 'delivery', name: 'photoshop-document' }
-                );
-                next(null, temporaryDirectory);
-            });
         }
 
         if (options.delivery && APP_ID === 'ILST') {
@@ -584,19 +621,15 @@ FT.exporter = (function(){
                 var formatMap = {
                     ai: {
                         method: 'saveDocumentAsFileIn',
-                        componentName: 'illustrator-document',
                     },
                     pdf: {
                         method: 'savePdfAsFileIn',
-                        componentName: 'pdf-document',
                     },
                     svg: {
                         method: 'saveSvgAsFileIn',
-                        componentName: 'svg-document',
                     },
                     eps: {
                         method: 'saveEpsAsFileIn',
-                        componentName: 'eps-document',
                     },
                 }
                 var format = formatMap[saveFormat] || formatMap.ai;
@@ -605,12 +638,16 @@ FT.exporter = (function(){
                 csInterface.evalScript(extendScript, function (filePath) {
                     verifyReturnedValue(filePath, function(error, filePath) {
                         exportedFiles.push(
-                            { path: filePath, use: 'delivery', name: format.componentName }
+                            {
+                                path: filePath,
+                                use: 'delivery',
+                                name: options.component_name,
+                            }
                         );
                         next(error, temporaryDirectory);
                     });
                 });
-                
+
             });
         }
 
@@ -619,7 +656,7 @@ FT.exporter = (function(){
             steps.push(saveIllustratorPdf);
             steps.push(function (filePath, next) {
                 exportedFiles.push(
-                    { path: filePath, use: 'pdf-review' }
+                    { path: filePath, use: 'pdf-review', name: 'pdf-document' }
                 );
                 next(null, temporaryDirectory);
             });
@@ -675,7 +712,7 @@ FT.exporter = (function(){
 
     function getExportSettingOptions(value, next) {
         logger.info('Collecting export options.');
-        var extendScript = 'FTX.afterEffectsExport.getExportSettingOptions()';
+        var extendScript = 'JSON.stringify(FTX.export.getExportSettingOptions())';
         csInterface.evalScript(extendScript, function (options) {
             logger.info(options);
             verifyReturnedValue(options, next);
@@ -699,25 +736,12 @@ FT.exporter = (function(){
             next(null, result);
         });
 
-        if (APP_ID === 'AEFT') {
-            steps.push(getExportSettingOptions);
-            steps.push(function (exportOptions, next) {
-                result.exportOptions = JSON.parse(exportOptions);
-                next(null, result);
-            });
-        }
-
-        if (APP_ID === 'ILST') {
-            result.exportOptions = {
-                formats: [
-                    { label: 'Adobe Illustrator (ai)', value: 'ai' },
-                    { label: 'Illustrator EPS (eps)', value: 'eps' },
-                    { label: 'Adobe PDF (pdf)', value: 'pdf' },
-                    { label: 'SVG (svg)', value: 'svg' },
-                ]
-            }
-        }
-
+        steps.push(getExportSettingOptions);
+        steps.push(function (exportOptions, next) {
+            result.exportOptions = JSON.parse(exportOptions);
+            logger.info('---> ExportOption ', result.exportOptions)
+            next(null, result);
+        });
 
         if (options.metadata) {
             steps.push(function (result, next) {

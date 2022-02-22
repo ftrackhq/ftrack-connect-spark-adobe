@@ -25,6 +25,12 @@ task or other object within a project.
 
 You can also choose a type, if you want categorize what you're publishing.
 
+.. note::
+
+    To avoid issues on consequential publishes, after the first one, the asset type will be locked .
+    In order to change it, you'll have to move back to the task section and re trigger the publish widget.
+
+
 If are already versions published that matches your name and asset type, ftrack
 will automatically version up what you've published. So if there is already a
 :term:`Version <asset version>` named Overlay of type Upload, ftrack will create

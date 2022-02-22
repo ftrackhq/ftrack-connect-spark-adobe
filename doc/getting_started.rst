@@ -19,18 +19,29 @@ free trial at our `Sign up page <https://www.ftrack.com/signup>`_.
 2. Connect
 ----------
 
+
 Download and install ftrack Connect for your platform at
 `Connect download page <https://www.ftrack.com/portfolio/connect>`_.
 
 Open Connect and sign in with your company's ftrack URL, e.g.
 <company-url>.ftrackapp.com.
 
-.. note::
+.. warning::
+
+    **Storage scenario setup is required for the integration to work properly.**
 
     If this is the first time you use ftrack and Connect you will be asked to
     configure a Storage scenario to let ftrack now how to publish your files.
-    See :ref:`ftrack:administering/configure_storage_scenario` for more
+    See how to `configure storage scenario <https://help.ftrack.com/en/articles/1040436-configuring-file-storage>`_ for more
     information.
+
+
+Adobe launchers should show up after the login procedure, from here you'll be able to pick the version to start.
+
+.. figure:: /image/connect_adobe_integrations.png
+   :align: center
+
+
 
 .. _getting_started/adobe_extension:
 

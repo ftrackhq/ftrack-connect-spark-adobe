@@ -5,4 +5,7 @@
 Development
 *******************
 
-TODO / HIDE
+.. toctree::
+    :maxdepth: 1
+
+    building_from_source
